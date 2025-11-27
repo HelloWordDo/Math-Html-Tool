@@ -1,0 +1,652 @@
+  <!DOCTYPE html>
+  <html lang="zh-CN">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <title>轴对称图形</title>
+      <style>
+          body {
+              margin: 5px;
+              font-family: Arial, sans-serif;
+              background-color: #f0f0f0;
+              touch-action: none;
+              overflow: hidden;
+              height: 100vh;
+              display: flex;
+              flex-direction: column;
+          }
+
+          h1 {
+              text-align: center;
+              color: #2c3e50;
+              margin: 5px 0;
+              font-size: 1.5em;
+          }
+
+          #container {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 10px;
+              flex: 1;
+              width: 100%;
+              padding: 5px;
+          }
+
+          /* 竖屏布局 - 按钮上下水平分布 */
+          @media (orientation: portrait) {
+              #container {
+                  flex-direction: column;
+                  gap: 8px;
+              }
+              
+              .control-group {
+                  flex-direction: row;
+                  justify-content: center;
+                  flex-wrap: wrap;
+                  max-width: 100%;
+                  padding: 8px;
+              }
+              
+              .button-group {
+                  flex-direction: row;
+              }
+              
+              canvas {
+                  max-width: 90vw;
+                  max-height: 65vh;
+                  width: auto;
+                  height: auto;
+              }
+              
+              h1 {
+                  font-size: 1.2em;
+                  margin: 3px 0;
+              }
+          }
+
+          /* 横屏布局 - 按钮左右竖直分布 */
+          @media (orientation: landscape) {
+              #container {
+                  flex-direction: row;
+                  gap: 15px;
+              }
+              
+              .control-group {
+                  flex-direction: column;
+                  justify-content: center;
+                  max-height: 80vh;
+                  padding: 10px;
+              }
+              
+              .button-group {
+                  flex-direction: column;
+              }
+              
+              canvas {
+                  max-width: 60vw;
+                  max-height: 80vh;
+                  width: auto;
+                  height: auto;
+              }
+              
+              h1 {
+                  font-size: 1.3em;
+                  margin: 3px 0;
+              }
+          }
+
+          /* 小屏幕设备优化 */
+          @media (max-width: 480px) and (orientation: portrait) {
+              .control-group {
+                  gap: 5px;
+                  padding: 5px;
+              }
+              
+              button {
+                  padding: 8px 12px;
+                  font-size: 14px;
+                  min-height: 36px;
+              }
+              
+              canvas {
+                  max-width: 95vw;
+                  max-height: 60vh;
+              }
+          }
+
+          @media (max-height: 480px) and (orientation: landscape) {
+              .control-group {
+                  gap: 5px;
+                  padding: 5px;
+              }
+              
+              button {
+                  padding: 8px 12px;
+                  font-size: 14px;
+                  min-height: 36px;
+              }
+              
+              canvas {
+                  max-width: 50vw;
+                  max-height: 70vh;
+              }
+          }
+
+          .control-group {
+              display: flex;
+              gap: 10px;
+              padding: 8px;
+              background: #ecf0f1;
+              border-radius: 8px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              flex-shrink: 0;
+          }
+
+          button {
+              padding: 10px 15px;
+              cursor: pointer;
+              background-color: #3498db;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              font-size: 14px;
+              transition: all 0.3s ease;
+              touch-action: manipulation;
+              -webkit-tap-highlight-color: transparent;
+              min-height: 40px;
+              white-space: nowrap;
+              flex-shrink: 0;
+          }
+
+          button:hover {
+              background-color: #2980b9;
+              transform: translateY(-2px);
+              box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+          }
+
+          button.active {
+              background-color: #2ecc71;
+          }
+
+          button:active {
+              transform: scale(0.95);
+          }
+
+          canvas {
+              border: 3px solid #bdc3c7;
+              border-radius: 8px;
+              background-color: white;
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+              touch-action: none;
+              cursor: crosshair;
+          }
+
+          .button-group {
+              display: flex;
+              gap: 8px;
+              flex-wrap: wrap;
+          }
+      </style>
+  </head>
+  <body>
+  <h1>对称魔法实验室</h1>
+  <div id="container">
+      <div class="control-group">
+          <button id="axisType">切换对称轴</button>
+          <button id="complete">生成对称图形</button>
+          <button id="clear">全部清空</button>
+      </div>
+
+      <canvas id="canvas" width="720" height="720"></canvas>
+
+      <div class="control-group">
+          <div class="button-group">
+              <button id="pointMode">点</button>
+              <button id="lineMode">直线</button>
+              <button id="clearPoints">清除当前点</button>
+              <button id="setBgImage">背景图</button>
+          </div>
+          <button id="curveMode">自由曲线</button>
+          <button id="undo">撤销操作</button>
+      </div>
+  </div>
+
+  <script>
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // 状态管理
+      let drawingHistory = [];
+      let tempPoints = [];
+      let isDrawing = false;
+      let currentMode = 'line';
+      let axisType = 'vertical';
+      const GRID_SIZE = 30;
+      const LINE_WIDTH = 3;
+      // 背景图对象
+      let bgImage = null;
+      let bgVisible = false; 
+
+      // 初始化画布
+      function initCanvas() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          // 1. 先画背景图（如果有）
+          if (bgVisible && bgImage) {
+              // 直接 1:1 拉伸到 canvas 分辨率，避免任何比例偏移
+              ctx.globalAlpha = 0.35;   // 透明度可再调
+              ctx.drawImage(bgImage,
+              0, 0, bgImage.width, bgImage.height,   // 源矩形
+              0, 0, canvas.width, canvas.height);    // 目标矩形
+          ctx.globalAlpha = 1;
+          }
+          drawGrid();
+          drawAxis();
+      }
+
+      // 绘制网格系统
+      function drawGrid() {
+          ctx.strokeStyle = '#d5d8dc';
+          ctx.setLineDash([3, 5]);
+          ctx.lineWidth = 0.8;
+
+          // 绘制垂直线
+          for (let x = 0; x <= canvas.width; x += GRID_SIZE) {
+              ctx.beginPath();
+              ctx.moveTo(x, 0);
+              ctx.lineTo(x, canvas.height);
+              ctx.stroke();
+          }
+
+          // 绘制水平线
+          for (let y = 0; y <= canvas.height; y += GRID_SIZE) {
+              ctx.beginPath();
+              ctx.moveTo(0, y);
+              ctx.lineTo(canvas.width, y);
+              ctx.stroke();
+          }
+
+          ctx.setLineDash([]);
+      }
+
+      // 绘制对称轴（对齐网格线）
+      function drawAxis() {
+          ctx.strokeStyle = '#e74c3c';
+          ctx.setLineDash([8, 8]);
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+
+          const getAlignedPos = (pos) => Math.round(pos / GRID_SIZE) * GRID_SIZE;
+
+          switch (axisType) {
+              case 'vertical':
+                  const axisX = getAlignedPos(canvas.width / 2);
+                  ctx.moveTo(axisX, 0);
+                  ctx.lineTo(axisX, canvas.height);
+                  break;
+              case 'horizontal':
+                  const axisY = getAlignedPos(canvas.height / 2);
+                  ctx.moveTo(0, axisY);
+                  ctx.lineTo(canvas.width, axisY);
+                  break;
+              case 'diagonal':
+                  ctx.moveTo(0, 0);
+                  ctx.lineTo(canvas.width, canvas.height);
+                  break;
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+      }
+
+      // 镜像点计算
+      function calculateMirrorPoint(x, y) {
+          const axis = {
+              vertical: () => {
+                  const axisX = Math.round(canvas.width / 2 / GRID_SIZE) * GRID_SIZE;
+                  return {x: 2 * axisX - x, y};
+              },
+              horizontal: () => {
+                  const axisY = Math.round(canvas.height / 2 / GRID_SIZE) * GRID_SIZE;
+                  return {x, y: 2 * axisY - y};
+              },
+              diagonal: () => {
+                  const centerX = canvas.width / 2;
+                  const centerY = canvas.height / 2;
+                  return {
+                      x: centerX + (y - centerY),
+                      y: centerY + (x - centerX)
+                  };
+              }
+          };
+          return axis[axisType]();
+      }
+
+      // 通用坐标获取函数
+      function getEventCoordinates(e) {
+          if (e.touches && e.touches.length > 0) {
+              return {
+                  clientX: e.touches[0].clientX,
+                  clientY: e.touches[0].clientY
+              };
+          }
+          if (e.changedTouches && e.changedTouches.length > 0) {
+              return {
+                  clientX: e.changedTouches[0].clientX,
+                  clientY: e.changedTouches[0].clientY
+              };
+          }
+          return {
+              clientX: e.clientX,
+              clientY: e.clientY
+          };
+      }
+
+
+      // 事件处理
+      canvas.addEventListener('mousedown', handleMouseDown);
+      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener('mouseup', handleMouseUp);
+      canvas.addEventListener('mouseout', handleMouseUp);
+
+      // 触摸事件处理
+      canvas.addEventListener('touchstart', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const coords = getEventCoordinates(e);
+          handleMouseDown(coords);
+      });
+      canvas.addEventListener('touchmove', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const coords = getEventCoordinates(e);
+          handleMouseMove(coords);
+      });
+      canvas.addEventListener('touchend', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          handleMouseUp();
+      });
+      canvas.addEventListener('touchcancel', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          handleMouseUp();
+      });
+
+      // 按钮事件绑定
+      document.getElementById('axisType').addEventListener('click', rotateAxis);
+      document.getElementById('lineMode').addEventListener('click', () => setMode('line'));
+      document.getElementById('pointMode').addEventListener('click', () => setMode('point'));
+      document.getElementById('curveMode').addEventListener('click', () => setMode('curve'));
+      document.getElementById('undo').addEventListener('click', undo);
+      document.getElementById('clear').addEventListener('click', clearAll);
+      document.getElementById('complete').addEventListener('click', generateSymmetry);
+      document.getElementById('clearPoints').addEventListener('click', resetCurrentPoints);
+
+      function handleMouseDown(e) {
+          const pos = getCanvasPosition(e);
+          if (currentMode === 'point') {
+              drawingHistory.push({
+                  type: 'point',
+                  points: [pos]
+              });
+              redraw();
+          }
+          if (!isHalfOfCanvas(pos)){
+              return;
+          }
+          if (currentMode === 'line') {
+              handleLineDrawing(pos);
+          } else {
+              startCurveDrawing(pos);
+          }
+      }
+
+      function isHalfOfCanvas(pos) {
+          switch (axisType) {
+              case 'vertical':
+                  return pos.x <= canvas.width / 2;
+              case 'horizontal':
+                  return pos.y <= canvas.height / 2;
+              case 'diagonal':
+                  return pos.x <= pos.y;
+          }
+      }
+
+      function handleMouseMove(e) {
+          if (!isDrawing || currentMode === 'point') return;
+          const pos = getCanvasPosition(e);
+          if (!isHalfOfCanvas(pos)){
+              return;
+          }
+          drawCurve(pos);
+      }
+
+      function handleMouseUp() {
+          if (currentMode === 'curve' && isDrawing) {
+              endCurveDrawing();
+          }
+      }
+
+      function getCanvasPosition(e) {
+          const rect = canvas.getBoundingClientRect();
+          const scaleX = canvas.width / rect.width;
+          const scaleY = canvas.height / rect.height;
+          return {
+              x: (e.clientX - rect.left) * scaleX,
+              y: (e.clientY - rect.top) * scaleY
+          };
+      }
+
+      // 直线绘制逻辑
+      function handleLineDrawing(pos) {
+          if (tempPoints.length === 0) {
+              tempPoints.push(pos);
+          } else {
+              const lastPoint = tempPoints[0];
+              drawingHistory.push({
+                  type: 'line',
+                  points: [lastPoint, pos]
+              });
+              tempPoints = [pos];
+          }
+          redraw();
+      }
+
+      // 曲线绘制逻辑
+      function startCurveDrawing(pos) {
+          isDrawing = true;
+          tempPoints.push(pos);
+          ctx.beginPath();
+          ctx.moveTo(pos.x, pos.y);
+          ctx.lineWidth = LINE_WIDTH;
+      }
+
+      function drawCurve(pos) {
+          ctx.lineTo(pos.x, pos.y);
+          ctx.stroke();
+          tempPoints.push(pos);
+      }
+
+      function endCurveDrawing() {
+          isDrawing = false;
+          drawingHistory.push({
+              type: 'curve',
+              points: [...tempPoints]
+          });
+          tempPoints = [];
+      }
+
+      // 重绘逻辑
+      function redraw() {
+          initCanvas();
+          ctx.lineWidth = LINE_WIDTH;
+
+          // 绘制历史记录
+          drawingHistory.forEach(item => {
+              ctx.beginPath();
+              if (item.type === 'point') {
+                  const p = item.points[0];
+                  ctx.fillStyle = '#e67e22';
+                  ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                  ctx.fill();
+              }
+              else if (item.type === 'line') {
+                  ctx.moveTo(item.points[0].x, item.points[0].y);
+                  ctx.lineTo(item.points[1].x, item.points[1].y);
+              } else {
+                  item.points.forEach((p, i) => {
+                      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+                  });
+              }
+              ctx.stroke();
+          });
+
+          // 绘制临时点
+          if (currentMode === 'line' && tempPoints.length > 0) {
+              ctx.fillStyle = '#e67e22';
+              tempPoints.forEach(p => {
+                  ctx.beginPath();
+                  ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                  ctx.fill();
+              });
+          }
+      }
+
+      // 功能控制
+      function rotateAxis() {
+          const types = ['vertical', 'horizontal', 'diagonal'];
+          axisType = types[(types.indexOf(axisType) + 1) % 3];
+          initCanvas();
+          redraw();
+      }
+
+      function setMode(mode) {
+          currentMode = mode;
+          isDrawing = false;
+          resetCurrentPoints();
+          document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+          document.getElementById(mode + 'Mode').classList.add('active');
+      }
+
+      function undo() {
+          drawingHistory.pop();
+          resetCurrentPoints();
+          redraw();
+      }
+
+      function clearAll() {
+          drawingHistory = [];
+          resetCurrentPoints();
+          initCanvas();
+      }
+
+      function resetCurrentPoints() {
+          tempPoints = [];
+          // 2. 清掉 point 模式下最后一次添加的圆点
+          //    从数组尾部开始找，找到第一个 type === 'point' 的就删
+          for (let i = drawingHistory.length - 1; i >= 0; i--) {
+              if (drawingHistory[i].type === 'point') {
+                  drawingHistory.splice(i, 1);
+                  break;          // 只删一个
+              }
+          }
+          redraw();
+      }
+
+      // 生成对称图形
+      function generateSymmetry() {
+          ctx.strokeStyle = '#3498db';
+          ctx.fillStyle = '#3498db';
+          ctx.lineWidth = LINE_WIDTH;
+
+          drawingHistory.forEach(item => {
+            if (item.type === 'point') {
+                const p = item.points[0];
+                const mirror = calculateMirrorPoint(p.x, p.y);
+                ctx.beginPath();
+                ctx.arc(mirror.x, mirror.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            else if (item.type === 'line') {
+                  ctx.beginPath();
+                  const mirrorPoints = item.points.map(p => calculateMirrorPoint(p.x, p.y));
+                  ctx.moveTo(mirrorPoints[0].x, mirrorPoints[0].y);
+                  ctx.lineTo(mirrorPoints[1].x, mirrorPoints[1].y);
+              } else {
+                  ctx.beginPath();
+                  const mirrorPoints = item.points.map(p => calculateMirrorPoint(p.x, p.y));
+                  mirrorPoints.forEach((p, i) => {
+                      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+                  });
+              }
+              ctx.stroke();
+          });
+
+          ctx.strokeStyle = '#000';
+      }
+
+      // 防止页面滚动和缩放
+      document.addEventListener('touchmove', function(e) {
+          if (e.target === canvas) {
+              e.preventDefault();
+          }
+      }, { passive: false });
+
+      document.addEventListener('gesturestart', function(e) {
+          e.preventDefault();
+      });
+
+      // 动态调整画布大小
+      function resizeCanvas() {
+          const container = document.getElementById('container');
+          const isPortrait = window.innerHeight > window.innerWidth;
+          
+          if (isPortrait) {
+              // 竖屏模式
+              const maxSize = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.65);
+              canvas.width = Math.min(maxSize, 600);
+              canvas.height = Math.min(maxSize, 600);
+          } else {
+              // 横屏模式
+              const maxSize = Math.min(window.innerWidth * 0.6, window.innerHeight * 0.8);
+              canvas.width = Math.min(maxSize, 600);
+              canvas.height = Math.min(maxSize, 600);
+          }
+          
+          initCanvas();
+          redraw();
+      }
+
+      // 监听屏幕方向变化
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('orientationchange', function() {
+          setTimeout(resizeCanvas, 100);
+      });
+
+      // 初始化
+      setMode('point');
+      resizeCanvas();
+
+      // 按钮事件
+      document.getElementById('setBgImage').addEventListener('click', () => {
+          const btn = document.getElementById('setBgImage');
+      
+          if (!bgImage) {
+              bgImage = new Image();
+              bgImage.onload = () => {
+                  bgVisible = true;
+                  btn.textContent = '隐藏背景图';
+                  redraw();
+              };
+              bgImage.src = 'pic2.png';
+              return;
+          }
+
+          // 后续点击只切换开关
+          bgVisible = !bgVisible;
+          btn.textContent = bgVisible ? '隐藏背景图' : '显示背景图';
+          redraw();
+      });
+  </script>
+  </body>
+  </html>
