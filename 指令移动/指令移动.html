@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch风格指令移动系统</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 左侧指令区 */
+        .blocks-area {
+            width: 60%; /* 修改为60% */
+            background-color: #f0f4f8;
+            border-right: 2px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .blocks-header {
+            padding: 15px;
+            background-color: #4a6fa5;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: 1px solid white;
+            color: white;
+            padding: 2px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .blocks-container {
+            padding: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .block-group {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .block-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        label {
+            width: 80px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        input, select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex-grow: 1;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4a6fa5;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #3a5d8c;
+        }
+
+        button.add-btn {
+            background-color: #5cb85c;
+        }
+
+        button.add-btn:hover {
+            background-color: #4cae4c;
+        }
+
+        button.delete-btn {
+            background-color: #d9534f;
+            padding: 4px 8px;
+            margin-left: 5px;
+        }
+
+        button.delete-btn:hover {
+            background-color: #c9302c;
+        }
+
+        /* 指令序列区域 */
+        .script-area {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .script-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #scriptList {
+            list-style-type: none;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #scriptList li {
+            background-color: white;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 4px solid #4a6fa5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 调整指令序列文字大小为原来的2倍 */
+        #scriptList li span {
+            font-size: 28px; /* 原来大约是14px，现在调整为28px */
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* 调整控制按钮文字大小为原来的2倍 */
+        .control-buttons button {
+            font-size: 28px; /* 原来大约是14px，现在调整为28px */
+        }
+
+        /* 右侧展示区 */
+        .stage-area {
+            width: 40%; /* 修改为40% */
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f4f8; /* 修改为与左侧相同的蓝色 */
+        }
+
+        .stage-header {
+            padding: 15px;
+            background-color: #4a6fa5;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid-controls input {
+            width: 60px;
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        .grid-controls button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .stage {
+            flex-grow: 1;
+            position: relative;
+            background-color: #f0f4f8; /* 修改为与左侧相同的蓝色 */
+            overflow: hidden;
+        }
+
+        /* 网格样式 */
+        .grid-line {
+            position: absolute;
+            background-color: #000000; /* 修改为黑色 */
+        }
+
+        .grid-horizontal {
+            width: 100%;
+            height: 1px;
+        }
+
+        .grid-vertical {
+            height: 100%;
+            width: 1px;
+        }
+
+        /* 角色样式 */
+        .person, .mushroom, .green-mushroom, .person3, .person4, .person5 {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            /* transition: all 0.5s ease; */
+            z-index: 2;
+            font-size: 16px;
+        }
+
+        .person {
+            background-color: #ff6347;
+        }
+
+        .mushroom {
+            background-color: #8b4513;
+            writing-mode: horizontal-tb;
+            text-orientation: mixed;
+            line-height: 40px;
+        }
+
+        .green-mushroom {
+            background-color: #228b22;
+            writing-mode: horizontal-tb;
+            text-orientation: mixed;
+            line-height: 40px;
+            display: none; /* 默认隐藏 */
+        }
+
+        .person3 {
+            background-color: #4169e1;
+            display: none; /* 默认隐藏 */
+        }
+
+        .person4 {
+            background-color: #ff8c00;
+            display: none; /* 默认隐藏 */
+        }
+
+        .person5 {
+            background-color: #9932cc;
+            display: none; /* 默认隐藏 */
+        }
+
+        /* 执行状态提示 */
+        .execution-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        /* 新增的数对输入区域 */
+        #pairInput {
+            display: none;
+        }
+        
+        #pairInput .input-row {
+            flex-wrap: wrap;
+        }
+        
+        #pairInput .input-row > * {
+            flex: 1;
+            min-width: 80px;
+        }
+        
+        /* 隐藏方向输入行 */
+        .direction-inputs {
+            display: none;
+        }
+        
+        /* 偏向方向输入 */
+        .bias-direction {
+            display: none;
+            margin-top: 5px;
+        }
+        
+        /* 角度方向输入框调整 */
+        #angleInput input[type="number"] {
+            width: 60px;
+        }
+        
+        /* 四列布局样式 - 调整高度为原来的2倍 */
+        .four-column-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 20px; /* 增加间距 */
+            margin-bottom: 30px; /* 增加底部边距 */
+            padding: 20px 0; /* 增加上下内边距 */
+            position: relative;
+        }
+        
+        .column {
+            position: relative;
+        }
+        
+        /* 修改标签样式：增大字体、加深颜色，字体大小调整为原来的2倍 */
+        .column label {
+            display: block;
+            text-align: center;
+            margin-bottom: 10px; /* 增加底部边距 */
+            width: 100%;
+            font-size: 32px; /* 原来的2倍 (16px -> 32px) */
+            color: #333; /* 加深颜色 */
+            font-weight: bold; /* 加粗 */
+            /* 给label标签本身添加边框 */
+            border: 2px solid #000; /* 黑色边框 */
+            border-radius: 8px; /* 圆角 */
+            padding: 10px; /* 内边距 */
+        }
+        
+        .dropdown-container {
+            position: relative;
+        }
+        
+        .direction-input-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .direction-input {
+            width: calc(100% - 30px);
+            padding: 16px; /* 增加内边距 */
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            border-right: none;
+            font-size: 28px; /* 增加字体大小 */
+        }
+        
+        .dropdown-btn {
+            width: 60px; /* 增加宽度 */
+            height: 68px; /* 增加高度 */
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px; /* 增加字体大小 */
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 320px; /* 增加最小宽度 */
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            left: 0;
+            top: 100%;
+            border-radius: 4px;
+            max-height: 400px; /* 增加最大高度 */
+            overflow-y: auto;
+            width: calc(100% - 60px); /* 调整宽度 */
+        }
+        
+        .dropdown-content.show {
+            display: block;
+        }
+        
+        .dropdown-content div {
+            padding: 20px 32px; /* 增加内边距 */
+            cursor: pointer;
+            font-size: 28px; /* 增加字体大小 */
+        }
+        
+        .dropdown-content div:hover {
+            background-color: #ddd;
+        }
+        
+        .angle-input-container, .distance-input-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .angle-input, .distance-input {
+            width: 100%;
+            padding: 16px; /* 增加内边距 */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 28px; /* 增加字体大小 */
+        }
+        
+        .angle-unit, .distance-unit {
+            margin-left: 10px; /* 增加左边距 */
+            white-space: nowrap;
+            font-size: 28px; /* 增加字体大小 */
+        }
+        
+        .pair-input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pair-input-container span {
+            margin: 0 10px; /* 增加边距 */
+            font-size: 28px; /* 增加字体大小 */
+        }
+        
+        .pair-input-container input {
+            width: 100px; /* 增加宽度 */
+            padding: 16px; /* 增加内边距 */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 28px; /* 增加字体大小 */
+        }
+        
+        .add-command-btn {
+            grid-column: 1 / -1;
+            width: 100%;
+            padding: 20px; /* 增加内边距 */
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 28px; /* 增加字体大小 */
+        }
+        
+        .add-command-btn:hover {
+            background-color: #4cae4c;
+        }
+        
+        /* 隐藏角度和数对区域 */
+        .angle-column, .pair-column, .direction-column, .distance-column {
+            display: none;
+        }
+        
+        /* 隐藏人员按钮 */
+        .toggle-persons-btn {
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        /* 网格控制按钮样式 */
+        .grid-controls .grid-btn {
+            width: 60px;
+            text-align: center;
+        }
+        
+        /* 统一按钮样式 */
+        #toggleGrid, #togglePersons {
+            background-color: #4a6fa5;
+        }
+        
+        /* 轨迹线样式 */
+        .trajectory-line {
+            position: absolute;
+            border: 2px dashed #4a6fa5;
+            z-index: 1;
+            transform-origin: 0 0;
+        }
+        
+        /* 灰色原始位置标记 - 颜色变浅 */
+        .original-marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            z-index: 1;
+            font-size: 16px;
+            background-color: #cccccc; /* 颜色变浅 */
+        }
+        
+        /* 分隔线样式 */
+        .divider-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #000;
+            z-index: 1;
+            display: none;
+        }
+        
+        /* 长方形样式 */
+        .rectangle {
+            position: absolute;
+            border: 2px solid #0000ff;
+            z-index: 0;
+        }
+        
+        /* 网格单元格样式 */
+        .grid-cell {
+            position: absolute;
+            border: 1px solid #888;
+            z-index: 0;
+        }
+        
+        /* 修改按钮样式，使文字在一行显示 */
+        #toggleRectangle {
+            white-space: nowrap;
+        }
+        
+        /* 坐标数字样式 */
+        .coordinate-number {
+            position: absolute;
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 左侧指令区 -->
+    <div class="blocks-area">
+        <div class="blocks-header">
+            <span>指令区</span>
+            <div>
+                <button class="toggle-btn" id="toggleDirection">显示F</button>
+                <button class="toggle-btn" id="toggleDistance">显示J</button>
+                <button class="toggle-btn" id="toggleAngle">显示D</button>
+                <button class="toggle-btn" id="togglePair">显示S</button>
+                <button class="toggle-btn" id="toggleCommandArea">显示Z</button>
+                <button class="toggle-btn" id="toggleInitialSettings">显示</button>
+            </div>
+        </div>
+        <div class="blocks-container">
+            <!-- 初始设置 -->
+            <div class="block-group" id="initialSettingsGroup" style="display: none;">
+                <div class="block-title">初始设置</div>
+                <div class="input-row">
+                    <label for="horizontalDistance">人1水平</label>
+                    <input type="number" id="horizontalDistance" value="6" min="1" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="verticalDistance">人1垂直</label>
+                    <input type="number" id="verticalDistance" value="8" min="1" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="greenMushroomHorizontal">人2水平</label>
+                    <input type="number" id="greenMushroomHorizontal" value="4" min="-50" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="greenMushroomVertical">人2垂直</label>
+                    <input type="number" id="greenMushroomVertical" value="-2" min="-50" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="person3Horizontal">人3水平</label>
+                    <input type="number" id="person3Horizontal" value="-2" min="-50" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="person3Vertical">人3垂直</label>
+                    <input type="number" id="person3Vertical" value="-3" min="-50" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="person4Horizontal">人4水平</label>
+                    <input type="number" id="person4Horizontal" value="-4" min="-50" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="person4Vertical">人4垂直</label>
+                    <input type="number" id="person4Vertical" value="3" min="-50" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="person5Horizontal">人5水平</label>
+                    <input type="number" id="person5Horizontal" value="0" min="-50" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <label for="person5Vertical">人5垂直</label>
+                    <input type="number" id="person5Vertical" value="7" min="-50" max="50">
+                    <span>cm</span>
+                </div>
+                <div class="input-row">
+                    <button id="applyDistance">应用</button>
+                </div>
+            </div>
+
+            <!-- 功能按钮区域 -->
+            <div class="block-group">
+                <div class="block-title">功能按钮</div>
+                <div class="four-column-layout" id="fourColumnLayout">
+                    <div class="column direction-column" id="directionColumn">
+                        <label for="directionInput">方向</label>
+                        <div class="dropdown-container">
+                            <div class="direction-input-container">
+                                <input type="text" class="direction-input" id="directionInput" placeholder="请输入或选择方向">
+                                <button class="dropdown-btn" id="directionDropdownBtn">▼</button>
+                            </div>
+                            <div class="dropdown-content" id="directionOptions">
+                                <!-- 按照新顺序排列 -->
+                                <div data-value="east">东</div>
+                                <div data-value="south">南</div>
+                                <div data-value="west">西</div>
+                                <div data-value="north">北</div>
+                                <div data-value="northeast">东北</div>
+                                <div data-value="northwest">西北</div>
+                                <div data-value="southeast">东南</div>
+                                <div data-value="southwest">西南</div>
+                                <div data-value="east-north">东偏北</div>
+                                <div data-value="north-east">北偏东</div>
+                                <div data-value="east-south">东偏南</div>
+                                <div data-value="south-east">南偏东</div>
+                                <div data-value="west-north">西偏北</div>
+                                <div data-value="north-west">北偏西</div>
+                                <div data-value="west-south">西偏南</div>
+                                <div data-value="south-west">南偏西</div>
+                                <div data-value="up">上</div>
+                                <div data-value="down">下</div>
+                                <div data-value="left">左</div>
+                                <div data-value="right">右</div>
+                                <div data-value="front">前</div>
+                                <div data-value="back">后</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="column angle-column" id="angleColumn">
+                        <label for="angleInput">角度</label>
+                        <div class="angle-input-container">
+                            <input type="number" class="angle-input" id="angleInput" min="0" max="90" placeholder="" value="">
+                            <span class="angle-unit">°</span>
+                        </div>
+                    </div>
+                    
+                    <div class="column distance-column" id="distanceColumn">
+                        <label for="distanceInput">距离</label>
+                        <div class="distance-input-container">
+                            <input type="number" class="distance-input" id="distanceInput" min="0" placeholder="" value="">
+                            <span class="distance-unit">cm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="column pair-column" id="pairColumn">
+                        <label for="pairInput">数对</label>
+                        <div class="pair-input-container">
+                            <span>(</span>
+                            <input type="number" id="pairColumnInput" step="1" placeholder="" value="">
+                            <span>,</span>
+                            <input type="number" id="pairRowInput" step="1" placeholder="" value="">
+                            <span>)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 分隔线 -->
+                    <div class="divider-line" id="dividerLine"></div>
+                </div>
+            </div>
+
+            <!-- 移动指令 -->
+            <div class="block-group" id="commandGroup" style="display: none;">
+                <div class="block-title">移动指令</div>
+                <button class="add-command-btn" id="addCommand">添加指令</button>
+            </div>
+
+            <!-- 指令序列 -->
+            <div class="script-area" id="scriptArea" style="display: none;">
+                <div class="script-title">
+                    <div class="block-title">指令序列</div>
+                    <button id="clearScript">清空</button>
+                </div>
+                <ul id="scriptList"></ul>
+                <div class="control-buttons">
+                    <button id="executeAll">执行全部</button>
+                    <button id="resetPos">重置位置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧展示区 -->
+    <div class="stage-area">
+        <div class="stage-header">
+            <span>舞台</span>
+            <div class="grid-controls">
+                <input type="number" id="gridSize" min="1" max="100"> <!-- 移除了默认值 -->
+                <button id="toggleGrid" class="grid-btn">显示W</button>
+                <button class="toggle-persons-btn" id="togglePersons">显示R</button> <!-- 修改默认文本 -->
+                <button id="toggleRectangle" class="grid-btn">显示方格</button> <!-- 修改按钮文本 -->
+            </div>
+        </div>
+        <div class="stage" id="stage">
+            <div class="person" id="person">机</div>
+            <div class="mushroom" id="mushroom">A</div> <!-- 修改为人1改为A -->
+            <div class="green-mushroom" id="greenMushroom">B</div> <!-- 修改为人2改为B -->
+            <div class="person3" id="person3">C</div> <!-- 修改为人3改为C -->
+            <div class="person4" id="person4">D</div> <!-- 修改为人4改为D -->
+            <div class="person5" id="person5">E</div> <!-- 修改为人5改为E -->
+            <div class="execution-status" id="executionStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const stage = document.getElementById('stage');
+        const person = document.getElementById('person');
+        const mushroom = document.getElementById('mushroom');
+        const greenMushroom = document.getElementById('greenMushroom');
+        const person3 = document.getElementById('person3');
+        const person4 = document.getElementById('person4');
+        const person5 = document.getElementById('person5');
+        const horizontalDistanceInput = document.getElementById('horizontalDistance');
+        const verticalDistanceInput = document.getElementById('verticalDistance');
+        const greenMushroomHorizontalInput = document.getElementById('greenMushroomHorizontal');
+        const greenMushroomVerticalInput = document.getElementById('greenMushroomVertical');
+        const person3HorizontalInput = document.getElementById('person3Horizontal');
+        const person3VerticalInput = document.getElementById('person3Vertical');
+        const person4HorizontalInput = document.getElementById('person4Horizontal');
+        const person4VerticalInput = document.getElementById('person4Vertical');
+        const person5HorizontalInput = document.getElementById('person5Horizontal');
+        const person5VerticalInput = document.getElementById('person5Vertical');
+        const applyDistanceBtn = document.getElementById('applyDistance');
+        const directionInput = document.getElementById('directionInput');
+        const directionDropdownBtn = document.getElementById('directionDropdownBtn');
+        const directionOptions = document.getElementById('directionOptions');
+        const angleInput = document.getElementById('angleInput');
+        const distanceInput = document.getElementById('distanceInput');
+        const pairColumnInput = document.getElementById('pairColumnInput');
+        const pairRowInput = document.getElementById('pairRowInput');
+        const addCommandBtn = document.getElementById('addCommand');
+        const scriptList = document.getElementById('scriptList');
+        const clearScriptBtn = document.getElementById('clearScript');
+        const executeAllBtn = document.getElementById('executeAll');
+        const resetPosBtn = document.getElementById('resetPos');
+        const executionStatus = document.getElementById('executionStatus');
+        const toggleInitialSettingsBtn = document.getElementById('toggleInitialSettings');
+        const toggleAngleBtn = document.getElementById('toggleAngle');
+        const togglePairBtn = document.getElementById('togglePair');
+        const toggleDirectionBtn = document.getElementById('toggleDirection');
+        const toggleDistanceBtn = document.getElementById('toggleDistance');
+        const initialSettingsGroup = document.getElementById('initialSettingsGroup');
+        const angleColumn = document.getElementById('angleColumn');
+        const pairColumnDiv = document.getElementById('pairColumn');
+        const directionColumn = document.getElementById('directionColumn');
+        const distanceColumn = document.getElementById('distanceColumn');
+        const toggleGridBtn = document.getElementById('toggleGrid');
+        const gridSizeInput = document.getElementById('gridSize');
+        const togglePersonsBtn = document.getElementById('togglePersons');
+        const toggleCommandAreaBtn = document.getElementById('toggleCommandArea');
+        const commandGroup = document.getElementById('commandGroup');
+        const scriptArea = document.getElementById('scriptArea');
+        const dividerLine = document.getElementById('dividerLine');
+        const fourColumnLayout = document.getElementById('fourColumnLayout');
+        const toggleRectangleBtn = document.getElementById('toggleRectangle'); // 新增按钮
+
+        // 核心参数
+        const PIXEL_PER_CM = 45; // 1cm对应45像素 (30 * 1.5)
+        let currentPersonPos = { x: 0, y: 0 }; // 人物当前坐标
+        let mushroomPos = { x: 0, y: 0 }; // 蘑菇的坐标
+        let greenMushroomPos = { x: 0, y: 0 }; // 绿色蘑菇的坐标
+        let person3Pos = { x: 0, y: 0 }; // 人3的坐标
+        let person4Pos = { x: 0, y: 0 }; // 人4的坐标
+        let person5Pos = { x: 0, y: 0 }; // 人5的坐标
+        let scriptCommands = []; // 指令序列
+        let isExecuting = false; // 是否正在执行指令
+        let selectedDirection = null; // 当前选中的方向
+        let selectedDirectionText = ''; // 当前选中的方向文本
+        let isGridVisible = false; // 网格是否可见
+        let gridSize = 96.75; // 网格大小（像素）默认值改为96.75 (64.5 * 1.5)
+        let personsVisible = false; // 人2、人3、人4、人5默认为隐藏
+        let trajectoryLines = []; // 存储轨迹线元素
+        let originalMarkers = []; // 存储原始位置标记元素
+        let rectangle = null; // 长方形元素
+        let gridCells = []; // 网格单元格元素
+        let coordinateNumbers = []; // 坐标数字元素
+        let isRectangleVisible = false; // 长方形是否可见
+
+        // 初始化场景
+        function initScene() {
+            // 获取舞台尺寸并设置蘑菇的位置
+            updateStageLayout();
+            // 应用初始距离设置
+            applyInitialDistance();
+            
+            // 监听窗口大小变化，更新舞台布局
+            window.addEventListener('resize', updateStageLayout);
+            
+            // 初始化分隔线位置
+            updateDividerLinePosition();
+        }
+
+
+        // 更新分隔线位置
+        function updateDividerLinePosition() {
+            // 等待布局稳定后再计算位置
+            setTimeout(() => {
+                const pairColumnRect = pairColumnDiv.getBoundingClientRect();
+                const distanceColumnRect = distanceColumn.getBoundingClientRect();
+                const layoutRect = fourColumnLayout.getBoundingClientRect();
+                
+                if (pairColumnRect.width > 0 && distanceColumnRect.width > 0 && layoutRect.width > 0) {
+                    // 计算分隔线位置（在distanceColumn右侧和pairColumn左侧的正中心）
+                    const distanceColumnRight = distanceColumnRect.right;
+                    const pairColumnLeft = pairColumnRect.left;
+                    const layoutLeft = layoutRect.left;
+                    
+                    // 计算两个列之间的中心位置
+                    const centerPosition = (distanceColumnRight + pairColumnLeft) / 2 - layoutLeft;
+                    
+                    dividerLine.style.left = `${centerPosition}px`;
+                    dividerLine.style.display = pairColumnDiv.style.display === 'block' ? 'block' : 'none';
+                }
+            }, 0);
+        }
+
+        // 更新舞台布局
+        function updateStageLayout() {
+            // 设置舞台中心点
+            const centerX = stage.clientWidth / 2;
+            const centerY = stage.clientHeight / 2;
+            
+            // 获取水平和垂直距离（cm）
+            const horizontalDistCm = parseInt(horizontalDistanceInput.value);
+            const verticalDistCm = parseInt(verticalDistanceInput.value);
+            
+            // 蘑菇的位置：相对于中心点水平右侧，垂直向上，并向左移动3个单位基础上再向下移动3个单位
+            mushroomPos.x = centerX + (horizontalDistCm - 3) * PIXEL_PER_CM;
+            mushroomPos.y = centerY - verticalDistCm * PIXEL_PER_CM + 3 * PIXEL_PER_CM;
+            mushroom.style.left = `${mushroomPos.x}px`;
+            mushroom.style.top = `${mushroomPos.y}px`;
+            
+            // 更新其他人位置
+            updateOthersPosition();
+            
+            // 更新网格
+            if (isGridVisible) {
+                drawGrid();
+            }
+            
+            // 更新长方形和网格
+            if (isRectangleVisible) {
+                drawRectangleAndGrid();
+            }
+        }
+
+        // 更新其他人位置（相对于舞台中心）
+        function updateOthersPosition() {
+            // 获取舞台中心点
+            const centerX = stage.clientWidth / 2;
+            const centerY = stage.clientHeight / 2;
+            
+            // 获取各个人物相对于舞台中心的偏移量，并向左移动3个单位基础上再向下移动3个单位
+            const greenMushroomHOffset = parseInt(greenMushroomHorizontalInput.value) - 3;
+            const greenMushroomVOffset = parseInt(greenMushroomVerticalInput.value) - 3;
+            const person3HOffset = parseInt(person3HorizontalInput.value) - 3;
+            const person3VOffset = parseInt(person3VerticalInput.value) - 3;
+            const person4HOffset = parseInt(person4HorizontalInput.value) - 3;
+            const person4VOffset = parseInt(person4VerticalInput.value) - 3;
+            const person5HOffset = parseInt(person5HorizontalInput.value) - 3;
+            const person5VOffset = parseInt(person5VerticalInput.value) - 3;
+            
+            // 计算各个人物的绝对位置（相对于舞台中心）
+            greenMushroomPos.x = centerX + greenMushroomHOffset * PIXEL_PER_CM;
+            greenMushroomPos.y = centerY - greenMushroomVOffset * PIXEL_PER_CM;
+            
+            person3Pos.x = centerX + person3HOffset * PIXEL_PER_CM;
+            person3Pos.y = centerY - person3VOffset * PIXEL_PER_CM;
+            
+            person4Pos.x = centerX + person4HOffset * PIXEL_PER_CM;
+            person4Pos.y = centerY - person4VOffset * PIXEL_PER_CM;
+            
+            person5Pos.x = centerX + person5HOffset * PIXEL_PER_CM;
+            person5Pos.y = centerY - person5VOffset * PIXEL_PER_CM;
+            
+            // 更新位置
+            greenMushroom.style.left = `${greenMushroomPos.x}px`;
+            greenMushroom.style.top = `${greenMushroomPos.y}px`;
+            
+            person3.style.left = `${person3Pos.x}px`;
+            person3.style.top = `${person3Pos.y}px`;
+            
+            person4.style.left = `${person4Pos.x}px`;
+            person4.style.top = `${person4Pos.y}px`;
+            
+            person5.style.left = `${person5Pos.x}px`;
+            person5.style.top = `${person5Pos.y}px`;
+        }
+
+        // 应用初始距离设置
+        function applyInitialDistance() {
+            // 获取水平和垂直距离（cm）
+            const horizontalDistCm = parseInt(horizontalDistanceInput.value);
+            const verticalDistCm = parseInt(verticalDistanceInput.value);
+            
+            // 人物初始位置：相对于蘑菇水平左侧，垂直向下，并向左移动3个单位基础上再向下移动3个单位
+            currentPersonPos.x = mushroomPos.x - horizontalDistCm * PIXEL_PER_CM;
+            currentPersonPos.y = mushroomPos.y + verticalDistCm * PIXEL_PER_CM;
+
+            updatePersonPosition();
+            
+            // 更新长方形和网格
+            if (isRectangleVisible) {
+                drawRectangleAndGrid();
+            }
+        }
+
+        // 更新人物位置
+        function updatePersonPosition() {
+            person.style.left = `${currentPersonPos.x}px`;
+            person.style.top = `${currentPersonPos.y}px`;
+        }
+
+        // 绘制网格
+        function drawGrid() {
+            // 清除现有的网格线
+            const existingGridLines = stage.querySelectorAll('.grid-line');
+            existingGridLines.forEach(line => line.remove());
+            
+            if (!isGridVisible) return;
+            
+            gridSize = parseInt(gridSizeInput.value) || 96.75; // 默认值改为96.75 (64.5 * 1.5)
+            
+            const stageWidth = stage.clientWidth;
+            const stageHeight = stage.clientHeight;
+            
+            // 绘制垂直线
+            for (let x = 0; x <= stageWidth; x += gridSize) {
+                const verticalLine = document.createElement('div');
+                verticalLine.className = 'grid-line grid-vertical';
+                verticalLine.style.left = `${x}px`;
+                stage.appendChild(verticalLine);
+            }
+            
+            // 绘制水平线
+            for (let y = 0; y <= stageHeight; y += gridSize) {
+                const horizontalLine = document.createElement('div');
+                horizontalLine.className = 'grid-line grid-horizontal';
+                horizontalLine.style.top = `${y}px`;
+                stage.appendChild(horizontalLine);
+            }
+        }
+
+        // 绘制长方形和网格
+        function drawRectangleAndGrid() {
+            // 清除现有的长方形、网格单元格和坐标数字
+            clearRectangleAndGrid();
+            
+            // 获取水平和垂直距离（cm）
+            const horizontalDistCm = parseInt(horizontalDistanceInput.value);
+            const verticalDistCm = parseInt(verticalDistanceInput.value);
+            
+            // 计算长方形的坐标（左下角为"机"中心点，右上角为"A"中心点）
+            const personCenterX = currentPersonPos.x + person.offsetWidth / 2;
+            const personCenterY = currentPersonPos.y + person.offsetHeight / 2;
+            const mushroomCenterX = mushroomPos.x + mushroom.offsetWidth / 2;
+            const mushroomCenterY = mushroomPos.y + mushroom.offsetHeight / 2;
+            
+            const rectLeft = Math.min(personCenterX, mushroomCenterX);
+            const rectTop = Math.min(personCenterY, mushroomCenterY);
+            const rectRight = Math.max(personCenterX, mushroomCenterX);
+            const rectBottom = Math.max(personCenterY, mushroomCenterY);
+            
+            const width = rectRight - rectLeft;
+            const height = rectBottom - rectTop;
+            
+            // 创建长方形
+            rectangle = document.createElement('div');
+            rectangle.className = 'rectangle';
+            rectangle.style.left = `${rectLeft}px`;
+            rectangle.style.top = `${rectTop}px`;
+            rectangle.style.width = `${width}px`;
+            rectangle.style.height = `${height}px`;
+            stage.appendChild(rectangle);
+            
+            // 创建网格单元格
+            for (let row = 0; row < verticalDistCm; row++) {
+                for (let col = 0; col < horizontalDistCm; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.style.left = `${rectLeft + col * PIXEL_PER_CM}px`;
+                    cell.style.top = `${rectTop + row * PIXEL_PER_CM}px`;
+                    cell.style.width = `${PIXEL_PER_CM}px`;
+                    cell.style.height = `${PIXEL_PER_CM}px`;
+                    stage.appendChild(cell);
+                    gridCells.push(cell);
+                }
+            }
+            
+            // 创建坐标数字
+            // X轴坐标数字 (0-6)
+            for (let i = 0; i <= 6; i++) {
+                const number = document.createElement('div');
+                number.className = 'coordinate-number';
+                number.textContent = i;
+                number.style.left = `${rectLeft + i * PIXEL_PER_CM - 5}px`;
+                number.style.top = `${rectBottom + 5}px`;
+                stage.appendChild(number);
+                coordinateNumbers.push(number);
+            }
+            
+            // Y轴坐标数字 (0-8)
+            for (let i = 0; i <= 8; i++) {
+                const number = document.createElement('div');
+                number.className = 'coordinate-number';
+                number.textContent = i;
+                number.style.left = `${rectLeft - 20}px`;
+                number.style.top = `${rectBottom - i * PIXEL_PER_CM - 8}px`;
+                stage.appendChild(number);
+                coordinateNumbers.push(number);
+            }
+        }
+
+        // 清除长方形和网格
+        function clearRectangleAndGrid() {
+            // 清除长方形
+            if (rectangle && rectangle.parentNode) {
+                rectangle.parentNode.removeChild(rectangle);
+                rectangle = null;
+            }
+            
+            // 清除网格单元格
+            gridCells.forEach(cell => {
+                if (cell.parentNode) {
+                    cell.parentNode.removeChild(cell);
+                }
+            });
+            gridCells = [];
+            
+            // 清除坐标数字
+            coordinateNumbers.forEach(number => {
+                if (number.parentNode) {
+                    number.parentNode.removeChild(number);
+                }
+            });
+            coordinateNumbers = [];
+        }
+
+        // 切换长方形显示
+        toggleRectangleBtn.addEventListener('click', () => {
+            isRectangleVisible = !isRectangleVisible;
+            toggleRectangleBtn.textContent = isRectangleVisible ? '隐藏方格' : '显示方格';
+            
+            if (isRectangleVisible) {
+                drawRectangleAndGrid();
+            } else {
+                clearRectangleAndGrid();
+            }
+        });
+
+        // 绘制轨迹线
+        function drawTrajectoryLine(startX, startY, endX, endY) {
+            return new Promise(resolve => {
+                const dx = endX - startX;
+                const dy = endY - startY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                const line = document.createElement('div');
+                line.className = 'trajectory-line';
+                line.style.width = '0px';
+                line.style.left = `${startX}px`;
+                line.style.top = `${startY}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                stage.appendChild(line);
+                trajectoryLines.push(line);
+                
+                // 动画绘制轨迹线，与人物移动同步
+                let currentLength = 0;
+                const step = length / 140; // 分50步绘制
+                
+                const drawStep = () => {
+                    currentLength += step;
+                    if (currentLength < length) {
+                        line.style.width = `${currentLength}px`;
+                        requestAnimationFrame(drawStep);
+                    } else {
+                        line.style.width = `${length}px`;
+                        resolve();
+                    }
+                };
+                
+                requestAnimationFrame(drawStep);
+            });
+        }
+
+        // 清除轨迹线
+        function clearTrajectoryLines() {
+            trajectoryLines.forEach(line => {
+                if (line.parentNode) {
+                    line.parentNode.removeChild(line);
+                }
+            });
+            trajectoryLines = [];
+        }
+
+        // 创建原始位置标记
+        function createOriginalMarker(x, y, text) {
+            const marker = document.createElement('div');
+            marker.className = 'original-marker';
+            marker.style.left = `${x}px`;
+            marker.style.top = `${y}px`;
+            marker.textContent = text;
+            stage.appendChild(marker);
+            originalMarkers.push(marker);
+        }
+
+        // 清除原始位置标记
+        function clearOriginalMarkers() {
+            originalMarkers.forEach(marker => {
+                if (marker.parentNode) {
+                    marker.parentNode.removeChild(marker);
+                }
+            });
+            originalMarkers = [];
+        }
+
+        // 切换网格显示
+        toggleGridBtn.addEventListener('click', () => {
+            isGridVisible = !isGridVisible;
+            toggleGridBtn.textContent = isGridVisible ? '隐藏W' : '显示W';
+            if (isGridVisible) {
+                drawGrid();
+            } else {
+                // 隐藏网格
+                const gridLines = stage.querySelectorAll('.grid-line');
+                gridLines.forEach(line => line.remove());
+            }
+        });
+
+        // 网格大小变化时重新绘制
+        gridSizeInput.addEventListener('change', () => {
+            if (isGridVisible) {
+                drawGrid();
+            }
+        });
+
+        // 方向下拉菜单控制
+        directionDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            directionOptions.classList.toggle('show');
+        });
+
+        // 点击选项时设置选中方向
+        directionOptions.addEventListener('click', (e) => {
+            if (e.target.tagName === 'DIV') {
+                selectedDirection = e.target.dataset.value;
+                selectedDirectionText = e.target.textContent;
+                directionInput.value = selectedDirectionText;
+                directionOptions.classList.remove('show');
+            }
+        });
+
+        // 点击其他地方关闭下拉菜单
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-container')) {
+                directionOptions.classList.remove('show');
+            }
+        });
+
+        // 切换方向显示/隐藏
+        toggleDirectionBtn.addEventListener('click', () => {
+            // const isHidden = directionColumn.style.display === 'none';
+            const computedStyle = window.getComputedStyle(directionColumn);
+            const isHidden = computedStyle.display === 'none';
+            directionColumn.style.display = isHidden ? 'block' : 'none';
+            toggleDirectionBtn.textContent = isHidden ? '隐藏F' : '显示F';
+            updateDividerLinePosition();
+        });
+
+        // 切换距离显示/隐藏
+        toggleDistanceBtn.addEventListener('click', () => {
+            // const isHidden = distanceColumn.style.display === 'none';
+            const computedStyle = window.getComputedStyle(distanceColumn);
+            const isHidden = computedStyle.display === 'none';
+            distanceColumn.style.display = isHidden ? 'block' : 'none';
+            toggleDistanceBtn.textContent = isHidden ? '隐藏J' : '显示J';
+            updateDividerLinePosition();
+        });
+
+        // 切换角度显示/隐藏
+        toggleAngleBtn.addEventListener('click', () => {
+            // const isHidden = angleColumn.style.display === 'none';
+            const computedStyle = window.getComputedStyle(angleColumn);
+            const isHidden = computedStyle.display === 'none';
+            angleColumn.style.display = isHidden ? 'block' : 'none';
+            toggleAngleBtn.textContent = isHidden ? '隐藏D' : '显示D';
+            updateDividerLinePosition();
+        });
+
+        // 切换数对显示/隐藏
+        togglePairBtn.addEventListener('click', () => {
+            // const isHidden = pairColumnDiv.style.display === 'none';
+            const computedStyle = window.getComputedStyle(pairColumnDiv);
+            const isHidden = computedStyle.display === 'none';
+            pairColumnDiv.style.display = isHidden ? 'block' : 'none';
+            togglePairBtn.textContent = isHidden ? '隐藏S' : '显示S';
+            dividerLine.style.display = isHidden ? 'block' : 'none';
+            updateDividerLinePosition();
+        });
+
+        // 切换人员显示/隐藏
+        togglePersonsBtn.addEventListener('click', () => {
+            personsVisible = !personsVisible;
+            togglePersonsBtn.textContent = personsVisible ? '隐藏R' : '显示R';
+            
+            // 控制人2、人3、人4、人5的显示/隐藏
+            greenMushroom.style.display = personsVisible ? 'flex' : 'none';
+            person3.style.display = personsVisible ? 'flex' : 'none';
+            person4.style.display = personsVisible ? 'flex' : 'none';
+            person5.style.display = personsVisible ? 'flex' : 'none';
+        });
+
+        // 切换移动指令和指令序列显示/隐藏
+        toggleCommandAreaBtn.addEventListener('click', () => {
+            const isHidden = commandGroup.style.display === 'none';
+            commandGroup.style.display = isHidden ? 'block' : 'none';
+            scriptArea.style.display = isHidden ? 'block' : 'none';
+            toggleCommandAreaBtn.textContent = isHidden ? '隐藏Z' : '显示Z';
+        });
+
+        // 添加指令到序列
+        addCommandBtn.addEventListener('click', () => {
+            // 检查是否输入了数对
+            const column = pairColumnInput.value === '' ? 0 : parseInt(pairColumnInput.value);
+            const row = pairRowInput.value === '' ? 0 : parseInt(pairRowInput.value);
+            
+            // 移除了3个特殊指令的处理逻辑
+            
+            if (column !== 0 || row !== 0) {
+                // 添加数对指令（独立指令）
+                const commandText = `移动到 (${column}, ${row})`;
+                const command = {
+                    type: 'pair',
+                    column: column,
+                    row: row,
+                    text: commandText
+                };
+                addCommandToScript(command);
+                
+                // 清空数对输入框
+                pairColumnInput.value = '';
+                pairRowInput.value = '';
+                return;
+            }
+            
+            // 检查是否输入了方向
+            const directionValue = directionInput.value.trim();
+            if (!directionValue) {
+                alert('请输入或选择有效方向');
+                return;
+            }
+            
+            const degree = angleInput.value === '' ? 0 : parseInt(angleInput.value);
+            const distCm = distanceInput.value === '' ? 0 : parseInt(distanceInput.value);
+            
+            if (distCm === 0) {
+                alert('请设置大于0的距离');
+                return;
+            }
+            
+            // 确定方向文本和类型
+            let dirText = '向 ' + directionValue;
+            // 简化的方向类型判断（实际应用中可能需要更复杂的映射）
+            const commandType = ['上', '下', '左', '右', '前', '后'].some(dir => directionValue.includes(dir)) 
+                ? 'cardinal' 
+                : 'compass';
+            
+            // 构造指令文本
+            let commandText = `${dirText}`;
+            if (degree > 0) {
+                commandText += ` ${degree}°`;
+            }
+            commandText += ` 移动 ${distCm} cm`;
+            
+            const command = {
+                type: commandType,
+                dir: selectedDirection || directionValue, // 如果有选中的方向值则使用，否则使用输入值
+                degree: degree,
+                distance: distCm,
+                text: commandText
+            };
+            
+            addCommandToScript(command);
+            
+            // 清空输入框
+            directionInput.value = '';
+            selectedDirection = null;
+            selectedDirectionText = '';
+            angleInput.value = '';
+            distanceInput.value = '';
+        });
+
+        // 添加指令到脚本序列
+        function addCommandToScript(command) {
+            scriptCommands.push(command);
+            updateScriptList();
+        }
+
+        // 更新脚本列表显示
+        function updateScriptList() {
+            scriptList.innerHTML = '';
+            scriptCommands.forEach((cmd, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${index + 1}. ${cmd.text}</span>
+                    <button class="delete-btn" data-index="${index}">删除</button>
+                `;
+                scriptList.appendChild(li);
+            });
+            
+            // 添加删除事件监听
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    deleteCommand(index);
+                });
+            });
+        }
+
+        // 删除指令
+        function deleteCommand(index) {
+            if (index >= 0 && index < scriptCommands.length) {
+                scriptCommands.splice(index, 1);
+                updateScriptList();
+            }
+        }
+
+        // 清空脚本
+        clearScriptBtn.addEventListener('click', () => {
+            if (isExecuting) return;
+            scriptCommands = [];
+            updateScriptList();
+        });
+
+        // 执行所有指令
+        executeAllBtn.addEventListener('click', async () => {
+            if (isExecuting || scriptCommands.length === 0) return;
+            
+            // 清除之前的轨迹和标记
+            clearTrajectoryLines();
+            clearOriginalMarkers();
+            
+            // 创建原始位置标记
+            createOriginalMarker(currentPersonPos.x, currentPersonPos.y, "机");
+            
+            isExecuting = true;
+            executeAllBtn.disabled = true;
+            showExecutionStatus('正在执行指令...');
+            
+            // 逐个执行指令
+            for (let i = 0; i < scriptCommands.length; i++) {
+                const cmd = scriptCommands[i];
+                showExecutionStatus(`执行步骤 ${i + 1}/${scriptCommands.length}: ${cmd.text}`);
+                
+                // 执行当前指令
+                if (cmd.type === 'pair') {
+                    // 数对指令分两步执行
+                    await executePairCommand(cmd);
+                } else {
+                    await executeSingleCommand(cmd);
+                    // 等待移动完成 (修改为2秒)
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+            
+            showExecutionStatus('所有指令执行完成!');
+            setTimeout(() => {
+                hideExecutionStatus();
+                isExecuting = false;
+                executeAllBtn.disabled = false;
+                
+                // 检查是否到达目标
+                checkArrival();
+            }, 500);
+        });
+
+        // 执行单个指令
+        function executeSingleCommand(command) {
+            return new Promise(async (resolve) => {
+                // 保存当前位置用于绘制轨迹
+                const startPosX = currentPersonPos.x + person.offsetWidth/2;
+                const startPosY = currentPersonPos.y + person.offsetHeight/2;
+                
+                const distPx = command.distance * PIXEL_PER_CM;
+                const angleRad = command.degree ? (command.degree * Math.PI) / 180 : 0;
+                
+                // 计算目标位置
+                let targetX = currentPersonPos.x;
+                let targetY = currentPersonPos.y;
+                
+                if (command.type === 'cardinal') {
+                    // 上下左右前后指令
+                    switch (command.dir) {
+                        case 'up':
+                        case '上':
+                        case '前':
+                            targetY -= distPx;
+                            break;
+                        case 'down':
+                        case '下':
+                        case '后':
+                            targetY += distPx;
+                            break;
+                        case 'left':
+                        case '左':
+                            targetX -= distPx;
+                            break;
+                        case 'right':
+                        case '右':
+                            targetX += distPx;
+                            break;
+                    }
+                } else if (command.type === 'compass') {
+                    // 罗盘方向指令
+                    switch (command.dir) {
+                        case 'east':
+                        case '东':
+                            targetX += distPx * Math.cos(angleRad);
+                            break;
+                        case 'south':
+                        case '南':
+                            targetY += distPx * Math.cos(angleRad);
+                            break;
+                        case 'west':
+                        case '西':
+                            targetX -= distPx * Math.cos(angleRad);
+                            break;
+                        case 'north':
+                        case '北':
+                            targetY -= distPx * Math.cos(angleRad);
+                            break;
+                        case 'northeast':
+                        case '东北':
+                            targetX += distPx * Math.cos(angleRad) * Math.cos(Math.PI/4);
+                            targetY -= distPx * Math.cos(angleRad) * Math.sin(Math.PI/4);
+                            break;
+                        case 'northwest':
+                        case '西北':
+                            targetX -= distPx * Math.cos(angleRad) * Math.cos(Math.PI/4);
+                            targetY -= distPx * Math.cos(angleRad) * Math.sin(Math.PI/4);
+                            break;
+                        case 'southeast':
+                        case '东南':
+                            targetX += distPx * Math.cos(angleRad) * Math.cos(Math.PI/4);
+                            targetY += distPx * Math.cos(angleRad) * Math.sin(Math.PI/4);
+                            break;
+                        case 'southwest':
+                        case '西南':
+                            targetX -= distPx * Math.cos(angleRad) * Math.cos(Math.PI/4);
+                            targetY += distPx * Math.cos(angleRad) * Math.sin(Math.PI/4);
+                            break;
+                        // 新增的偏向方向处理
+                        case 'east-north':
+                        case '东偏北':
+                            targetX += distPx * Math.cos(angleRad);
+                            targetY -= distPx * Math.sin(angleRad);
+                            break;
+                        case 'north-east':
+                        case '北偏东':
+                            targetX += distPx * Math.sin(angleRad);
+                            targetY -= distPx * Math.cos(angleRad);
+                            break;
+                        case 'east-south':
+                        case '东偏南':
+                            targetX += distPx * Math.cos(angleRad);
+                            targetY += distPx * Math.sin(angleRad);
+                            break;
+                        case 'south-east':
+                        case '南偏东':
+                            targetX += distPx * Math.sin(angleRad);
+                            targetY += distPx * Math.cos(angleRad);
+                            break;
+                        case 'west-north':
+                        case '西偏北':
+                            targetX -= distPx * Math.cos(angleRad);
+                            targetY -= distPx * Math.sin(angleRad);
+                            break;
+                        case 'north-west':
+                        case '北偏西':
+                            targetX -= distPx * Math.sin(angleRad);
+                            targetY -= distPx * Math.cos(angleRad);
+                            break;
+                        case 'west-south':
+                        case '西偏南':
+                            targetX -= distPx * Math.cos(angleRad);
+                            targetY += distPx * Math.sin(angleRad);
+                            break;
+                        case 'south-west':
+                        case '南偏西':
+                            targetX -= distPx * Math.sin(angleRad);
+                            targetY += distPx * Math.cos(angleRad);
+                            break;
+                    }
+                }
+                
+                // 绘制轨迹线并同时移动人物
+                const endPosX = targetX + person.offsetWidth/2;
+                const endPosY = targetY + person.offsetHeight/2;
+                
+                // 同时进行轨迹绘制和人物移动
+                await Promise.all([
+                    drawTrajectoryLine2(startPosX, startPosY, endPosX, endPosY),
+                    movePersonSmoothly(targetX, targetY)
+                ]);
+                
+                // 更新当前位置
+                currentPersonPos.x = targetX;
+                currentPersonPos.y = targetY;
+                
+                resolve();
+            });
+        }
+
+        // 绘制轨迹线 - 基于时间同步
+        function drawTrajectoryLine2(startX, startY, endX, endY) {
+            return new Promise(resolve => {
+                const dx = endX - startX;
+                const dy = endY - startY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                const line = document.createElement('div');
+                line.className = 'trajectory-line';
+                line.style.width = '0px';
+                line.style.left = `${startX}px`;
+                line.style.top = `${startY}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                line.style.transformOrigin = 'left center'; // 重要！
+                
+                stage.appendChild(line);
+                trajectoryLines.push(line);
+                
+                // 与人物移动同步的参数
+                const duration = 2000;
+                const startTime = Date.now();
+                
+                const drawStep = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                          
+                    // 使用相同的缓动函数
+                    // const easeProgress = 1 - Math.pow(1 - progress, 2);
+                    const easeProgress = progress; 
+                    
+                    line.style.width = `${length * easeProgress}px`;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(drawStep);
+                    } else {
+                        line.style.width = `${length}px`;
+                        resolve();
+                    }
+                };
+                
+                requestAnimationFrame(drawStep);
+            });
+        }
+
+        
+        // 平滑移动人物
+        function movePersonSmoothly(targetX, targetY) {
+            return new Promise(resolve => {
+                const startX = currentPersonPos.x;
+                const startY = currentPersonPos.y;
+                const deltaX = targetX - startX;
+                const deltaY = targetY - startY;
+                const duration = 2000; // 2秒
+                // const startTime = Date.now();
+                
+                const startTime = performance.now();
+
+                const moveStep = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // 使用缓动函数使移动更平滑
+                    // const easeProgress = 1 - Math.pow(1 - progress, 2);
+                    currentPersonPos.x = startX + deltaX * progress;
+                    currentPersonPos.y = startY + deltaY * progress;
+
+                    updatePersonPosition();
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(moveStep);
+                    } else {
+                        currentPersonPos.x = targetX;
+                        currentPersonPos.y = targetY;
+                        updatePersonPosition();
+                        resolve();
+                    }
+                };
+                
+                // moveStep();
+                 requestAnimationFrame(moveStep);
+            });
+        }
+
+        // 分步执行数对指令
+        async function executePairCommand(command) {
+            const column = command.column;
+            const row = command.row;
+            
+            // 第一步：横向移动
+            if (column !== 0) {
+                showExecutionStatus(`执行步骤 ${getCommandIndex(command) + 1}/${
+                    scriptCommands.length + (column !== 0 && row !== 0 ? 1 : 0)
+                }: 向${column > 0 ? '右' : '左'}移动 ${Math.abs(column)} 单位`);
+                
+
+                // 统一使用人物中心点作为参考
+                const startPosX = currentPersonPos.x + person.offsetWidth/2;
+                const startPosY = currentPersonPos.y + person.offsetHeight/2;
+                const targetX = currentPersonPos.x + column * PIXEL_PER_CM;
+                
+                console.log('线',{
+                    x:startPosX,
+                    y: startPosY,
+                    TX: targetX + person.offsetWidth/2, 
+                    TY:startPosY
+                });
+                console.log('人',{
+                    x:currentPersonPos.x,
+                    y: currentPersonPos.y,
+                    TX:targetX,
+                    TY: currentPersonPos.y
+                })
+                // 同时进行轨迹绘制和人物移动
+                await Promise.all([
+                    drawTrajectoryLine2(startPosX, startPosY, targetX + person.offsetWidth/2, startPosY),
+                    movePersonSmoothly(targetX, currentPersonPos.y)
+                ]);
+                
+                currentPersonPos.x = targetX;
+                await new Promise(resolve => setTimeout(resolve, 2000)); // 修改为2秒
+            }
+            
+            // 第二步：纵向移动
+            if (row !== 0) {
+                showExecutionStatus(`执行步骤 ${getCommandIndex(command) + 1 + (column !== 0 ? 1 : 0)}/${
+                    scriptCommands.length + (column !== 0 && row !== 0 ? 1 : 0)
+                }: 向${row > 0 ? '上' : '下'}移动 ${Math.abs(row)} 单位`);
+                
+                const startPosX = currentPersonPos.x + person.offsetWidth/2;
+                const startPosY = currentPersonPos.y + person.offsetHeight/2;
+                const targetY = currentPersonPos.y - row * PIXEL_PER_CM; // Y轴向上为负
+                
+                // 同时进行轨迹绘制和人物移动
+                await Promise.all([
+                    drawTrajectoryLine2(startPosX, startPosY, startPosX, targetY + person.offsetHeight/2),
+                    movePersonSmoothly(currentPersonPos.x, targetY)
+                ]);
+                
+                currentPersonPos.y = targetY;
+                await new Promise(resolve => setTimeout(resolve, 2000)); // 修改为2秒
+            }
+        }
+        
+        // 获取命令在序列中的索引
+        function getCommandIndex(command) {
+            return scriptCommands.indexOf(command);
+        }
+
+        // 检查是否到达蘑菇的位置
+        function checkArrival() {
+            const personRect = person.getBoundingClientRect();
+            const mushroomRect = mushroom.getBoundingClientRect();
+            const greenMushroomRect = greenMushroom.getBoundingClientRect();
+            const person3Rect = person3.getBoundingClientRect();
+            const person4Rect = person4.getBoundingClientRect();
+            const person5Rect = person5.getBoundingClientRect();
+            
+            // 简单碰撞检测
+            const personCenterX = personRect.left + personRect.width / 2;
+            const personCenterY = personRect.top + personRect.height / 2;
+            
+            // 检查是否到达人1位置
+            if (
+                personCenterX >= mushroomRect.left &&
+                personCenterX <= mushroomRect.right &&
+                personCenterY >= mushroomRect.top &&
+                personCenterY <= mushroomRect.bottom
+            ) {
+                setTimeout(() => {
+                    alert('恭喜！成功到达A位置！');
+                }, 100);
+                return;
+            }
+            
+            // 检查是否到达人2位置
+            if (
+                personCenterX >= greenMushroomRect.left &&
+                personCenterX <= greenMushroomRect.right &&
+                personCenterY >= greenMushroomRect.top &&
+                personCenterY <= greenMushroomRect.bottom
+            ) {
+                setTimeout(() => {
+                    alert('恭喜！成功到达B位置！');
+                }, 100);
+                return;
+            }
+            
+            // 检查是否到达人3位置
+            if (
+                personCenterX >= person3Rect.left &&
+                personCenterX <= person3Rect.right &&
+                personCenterY >= person3Rect.top &&
+                personCenterY <= person3Rect.bottom
+            ) {
+                setTimeout(() => {
+                    alert('恭喜！成功到达C位置！');
+                }, 100);
+                return;
+            }
+            
+            // 检查是否到达人4位置
+            if (
+                personCenterX >= person4Rect.left &&
+                personCenterX <= person4Rect.right &&
+                personCenterY >= person4Rect.top &&
+                personCenterY <= person4Rect.bottom
+            ) {
+                setTimeout(() => {
+                    alert('恭喜！成功到达D位置！');
+                }, 100);
+                return;
+            }
+            
+            // 检查是否到达人5位置
+            if (
+                personCenterX >= person5Rect.left &&
+                personCenterX <= person5Rect.right &&
+                personCenterY >= person5Rect.top &&
+                personCenterY <= person5Rect.bottom
+            ) {
+                setTimeout(() => {
+                    alert('恭喜！成功到达E位置！');
+                }, 100);
+                return;
+            }
+        }
+
+        // 重置位置
+        resetPosBtn.addEventListener('click', () => {
+            if (isExecuting) return;
+            
+            // 清除轨迹线和原始位置标记
+            clearTrajectoryLines();
+            clearOriginalMarkers();
+            
+            applyInitialDistance();
+        });
+
+        // 应用初始距离
+        applyDistanceBtn.addEventListener('click', () => {
+            if (isExecuting) return;
+            updateStageLayout();
+            applyInitialDistance();
+        });
+
+        // 显示执行状态
+        function showExecutionStatus(text) {
+            executionStatus.textContent = text;
+            executionStatus.style.display = 'block';
+        }
+
+        // 隐藏执行状态
+        function hideExecutionStatus() {
+            executionStatus.style.display = 'none';
+        }
+        
+        // 切换初始设置区域显示/隐藏
+        toggleInitialSettingsBtn.addEventListener('click', () => {
+            const isHidden = initialSettingsGroup.style.display === 'none';
+            initialSettingsGroup.style.display = isHidden ? 'block' : 'none';
+            toggleInitialSettingsBtn.textContent = isHidden ? '隐藏' : '显示';
+        });
+
+        // 初始化
+        window.addEventListener('load', initScene);
+        
+        // 窗口大小改变时更新分隔线位置
+        window.addEventListener('resize', updateDividerLinePosition);
+    </script>
+</body>
+</html>
