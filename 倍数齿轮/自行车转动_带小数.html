@@ -4784,7 +4784,7 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
     function updateRotation(delta) {
       state.frontAngle += delta;
       state.rearAngle = state.frontAngle * (state.frontTeeth / state.rearTeeth);
-      state.chainOffset -= delta * layout.frontGearR * 1.2; 
+      state.chainOffset += delta * layout.frontGearR * 1.2; 
       render();
     }
  
