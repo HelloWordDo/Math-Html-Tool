@@ -4531,11 +4531,11 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       const centerY = h * 0.55; 
       const centerX = w * 0.5;
       const wheelBase = base * 0.8;
-      layout.rearX = centerX - wheelBase * 0.35;
+      layout.rearX = centerX + wheelBase * 0.05;
       layout.rearY = centerY;
-      layout.frontX = centerX + wheelBase * 0.05; 
+      layout.frontX = centerX - wheelBase * 0.35;
       layout.frontY = centerY;
-      layout.frontWheelX = centerX + wheelBase * 0.45;
+      layout.frontWheelX = centerX - wheelBase * 0.75;
       updateGearSizes();
     }
  
@@ -4602,28 +4602,28 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       }
       return g;
     }
- 
+
     function render() {
       svg.innerHTML = svg.querySelector('defs').outerHTML;
       const main = document.createElementNS(NS, 'g');
       // main.setAttribute('transform', `rotate(${-state.slope} ${window.innerWidth/2} ${layout.rearY})`);
       svg.appendChild(main);
- 
+
       // 地面
       const gy = layout.rearY + layout.wheelR;
       const ground = document.createElementNS(NS, 'rect');
       ground.setAttribute('x', -2000); ground.setAttribute('y', gy); ground.setAttribute('width', 4000); ground.setAttribute('height', 600);
       ground.setAttribute('fill', '#cbd5e1'); main.appendChild(ground);
- 
+
       // 车架美化
       const frame = document.createElementNS(NS, 'g');
       const bb = { x: layout.frontX, y: layout.frontY };
       const sideLen = Math.abs(layout.frontX - layout.rearX);
       const triHeight = sideLen * Math.sin(Math.PI / 3);
       const seatTubeTop = { x: (layout.rearX + layout.frontX) / 2, y: bb.y - triHeight };
-      const headTubeTop = { x: layout.frontX + sideLen / 2, y: bb.y - triHeight };
-      const headTubeExtension = { x: headTubeTop.x + 50, y: headTubeTop.y - 60 }; 
-       
+      const headTubeTop = { x: layout.frontX - sideLen / 2, y: bb.y - triHeight };
+      const headTubeExtension = { x: headTubeTop.x - 50, y: headTubeTop.y - 60 }; 
+
       const d = `
         M ${layout.rearX} ${layout.rearY} L ${bb.x} ${bb.y} L ${seatTubeTop.x} ${seatTubeTop.y} Z
         M ${bb.x} ${bb.y} L ${seatTubeTop.x} ${seatTubeTop.y} L ${headTubeTop.x} ${headTubeTop.y} L ${bb.x} ${bb.y}
@@ -4631,8 +4631,8 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
         M ${seatTubeTop.x - 40} ${seatTubeTop.y - 80} L ${seatTubeTop.x + 40} ${seatTubeTop.y - 80}
         M ${headTubeTop.x} ${headTubeTop.y} L ${layout.frontWheelX} ${layout.frontY}
         M ${headTubeTop.x} ${headTubeTop.y} L ${headTubeExtension.x} ${headTubeExtension.y}
-        M ${headTubeExtension.x} ${headTubeExtension.y} L ${headTubeExtension.x + 80} ${headTubeExtension.y}
-        C ${headTubeExtension.x + 100} ${headTubeExtension.y}, ${headTubeExtension.x + 100} ${headTubeExtension.y + 50}, ${headTubeExtension.x + 80} ${headTubeExtension.y + 60}
+        M ${headTubeExtension.x} ${headTubeExtension.y} L ${headTubeExtension.x - 80} ${headTubeExtension.y}
+        C ${headTubeExtension.x - 100} ${headTubeExtension.y}, ${headTubeExtension.x - 100} ${headTubeExtension.y + 50}, ${headTubeExtension.x - 80} ${headTubeExtension.y + 60}
       `;
       const framePath = document.createElementNS(NS, 'path');
       framePath.setAttribute('d', d); framePath.setAttribute('fill', 'none');
@@ -4751,7 +4751,7 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       rDisp.style.top = (layout.rearY - layout.rearGearR - 100) + 'px';
        
       const ratio = state.frontTeeth / state.rearTeeth;
-      const largeGearRotations = state.frontAngle/(Math.PI*2);
+      const largeGearRotations = Math.abs(state.frontAngle)/(Math.PI*2);
       const smallGearRotations = state.rearAngle/(Math.PI*2);
 
       // 先对大齿轮圈数四舍五入到1位小数
@@ -4782,9 +4782,9 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
     }
  
     function updateRotation(delta) {
-      state.frontAngle += delta;
+      state.frontAngle -= delta;
       state.rearAngle = state.frontAngle * (state.frontTeeth / state.rearTeeth);
-      state.chainOffset += delta * layout.frontGearR * 1.2; 
+      state.chainOffset -= delta * layout.frontGearR * 1.2;
       render();
     }
  
