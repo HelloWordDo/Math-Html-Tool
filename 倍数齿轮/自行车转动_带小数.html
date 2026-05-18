@@ -2654,7 +2654,7 @@ var _bm_0f27=130513,_ck_a8bd="48c21e862120";</script>
     /* 圈数显示美化 */
     .rotation-display {
       position: absolute;
-      font-size: 24px;
+      font-size: 35px;
       font-weight: 900;
       text-align: center;
       pointer-events: none;
@@ -4776,7 +4776,7 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
     function animate() {
       if (!state.isPlaying || state.isDragging) return;
       // const factor = 1 - (state.slope / 45);
-      const step = 0.025; // 坡度功能已注释，使用固定步长
+      const step = 0.01; // 坡度功能已注释，使用固定步长
       updateRotation(step);
       requestAnimationFrame(animate);
     }
