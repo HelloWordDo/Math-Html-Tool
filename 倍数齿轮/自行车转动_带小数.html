@@ -4776,7 +4776,7 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
     function animate() {
       if (!state.isPlaying || state.isDragging) return;
       // const factor = 1 - (state.slope / 45);
-      const step = 0.01; // 坡度功能已注释，使用固定步长
+      const step = 0.005; // 坡度功能已注释，使用固定步长
       updateRotation(step);
       requestAnimationFrame(animate);
     }
