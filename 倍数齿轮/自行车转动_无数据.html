@@ -4816,7 +4816,7 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       let delta = currentAngle - state.lastMouseAngle;
       if (delta > Math.PI) delta -= Math.PI * 2;
       if (delta < -Math.PI) delta += Math.PI * 2;
-      updateRotation(delta);
+      updateRotation(-delta);
       state.lastMouseAngle = currentAngle;
     }
  
