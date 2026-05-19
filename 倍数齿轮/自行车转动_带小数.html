@@ -2699,7 +2699,7 @@ var _bm_0f27=130513,_ck_a8bd="48c21e862120";</script>
     .circle-btn svg { width: 45px; height: 45px; transition: fill 0.3s; fill: var(--frame); }
  
     /* 记号开关 */
-    #markerToggle {
+    #markerToggle{
       position: absolute;
       top: 30px;
       right: 30px;
@@ -2710,7 +2710,20 @@ var _bm_0f27=130513,_ck_a8bd="48c21e862120";</script>
       font-weight: 800;
       color: var(--frame);
     }
+    /* 显示数据 */
+    #dataToggle{
+      position: absolute;
+      top: 120px;
+      right: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--frame);
+    }
     #showMarkers { width: 22px; height: 22px; cursor: pointer; }
+    #showData { width: 22px; height: 22px; cursor: pointer; }
  
     .hint {
       position: absolute;
@@ -4466,7 +4479,12 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
     <input type="checkbox" id="showMarkers" checked>
     <label for="showMarkers">开启记号</label>
   </div>
- 
+
+  <div id="dataToggle" class="control-panel" style="width: auto;">
+    <input type="checkbox" id="showData" checked>
+    <label for="showData">显示数据</label>
+  </div>
+
   <!-- 坡度控制已注释
   <div id="slopeControl" class="control-panel">
     <div class="control-label" style="color: #f59e0b;">路况坡度: <span id="slopeVal">0°</span></div>
@@ -4507,6 +4525,7 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       rearAngle: 0,
       isPlaying: false,
       showMarkers: true,
+      showData: true,
       chainOffset: 0,
       isDragging: false,
       lastMouseAngle: 0
@@ -4744,23 +4763,31 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       const fCtrl = document.getElementById('frontControl');
       const rCtrl = document.getElementById('rearControl');
  
-      // 圈数显示定位
-      fDisp.style.left = (layout.frontX - 70) + 'px';
-      fDisp.style.top = (layout.frontY - layout.frontGearR - 120) + 'px';
-      rDisp.style.left = (layout.rearX - 70) + 'px';
-      rDisp.style.top = (layout.rearY - layout.rearGearR - 120) + 'px';
-       
-      const ratio = state.frontTeeth / state.rearTeeth;
-      const largeGearRotations = Math.abs(state.frontAngle)/(Math.PI*2);
-      const smallGearRotations = state.rearAngle/(Math.PI*2);
+      // 圈数显示定位和可见性
+      if (state.showData) {
+        fDisp.style.display = 'block';
+        rDisp.style.display = 'block';
 
-      // 先对大齿轮圈数四舍五入到1位小数
-      const roundedLargeGear = Math.round(largeGearRotations * 10) / 10;
-      // 基于四舍五入后的大齿轮圈数计算小齿轮圈数，确保精确倍数关系
-      const exactSmallGear = roundedLargeGear * ratio;
+        fDisp.style.left = (layout.frontX - 70) + 'px';
+        fDisp.style.top = (layout.frontY - layout.frontGearR - 120) + 'px';
+        rDisp.style.left = (layout.rearX - 70) + 'px';
+        rDisp.style.top = (layout.rearY - layout.rearGearR - 120) + 'px';
 
-      fDisp.textContent = `${roundedLargeGear.toFixed(1)}圈`;
-      rDisp.textContent = `${exactSmallGear.toFixed(1)}圈`;
+        const ratio = state.frontTeeth / state.rearTeeth;
+        const largeGearRotations = Math.abs(state.frontAngle)/(Math.PI*2);
+        const smallGearRotations = state.rearAngle/(Math.PI*2);
+
+        // 先对大齿轮圈数四舍五入到1位小数
+        const roundedLargeGear = Math.round(largeGearRotations * 10) / 10;
+        // 基于四舍五入后的大齿轮圈数计算小齿轮圈数，确保精确倍数关系
+        const exactSmallGear = roundedLargeGear * ratio;
+
+        fDisp.textContent = `${roundedLargeGear.toFixed(1)}圈`;
+        rDisp.textContent = `${exactSmallGear.toFixed(1)}圈`;
+      } else {
+        fDisp.style.display = 'none';
+        rDisp.style.display = 'none';
+      }
  
       // 控制面板定位：放在齿轮下方，增加间距避免遮挡轮胎
       fCtrl.style.left = (layout.frontX - 140) + 'px';
@@ -4855,6 +4882,11 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       render();
     };
  
+    document.getElementById('showData').onchange = (e) => {
+      state.showData = e.target.checked;
+      render();
+    };
+
     document.getElementById('frontGearSlider').oninput = (e) => {
       state.frontTeeth = parseInt(e.target.value);
       document.getElementById('frontTeethTxt').textContent = state.frontTeeth + '齿';
