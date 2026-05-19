@@ -2724,16 +2724,13 @@ var _bm_0f27=130513,_ck_a8bd="48c21e862120";</script>
     }
     #showMarkers { width: 22px; height: 22px; cursor: pointer; }
     #showData { width: 22px; height: 22px; cursor: pointer; }
-    #stepControl{
-      position: absolute;
-      top: 200px;
-      right: 30px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--frame);
+    #stepBtn {
+      width: 60px;
+      height: 60px;
+    }
+    #stepBtn svg {
+      width: 30px;
+      height: 30px;
     }
  
     .hint {
@@ -4483,9 +4480,9 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       </pattern>
     </defs>
   </svg>
- 
+
   <div class="hint">💡 提示：直接拨动脚踏板可手动旋转</div>
- 
+
   <div id="markerToggle" class="control-panel" style="width: auto;">
     <input type="checkbox" id="showMarkers">
     <label for="showMarkers">开启记号</label>
@@ -4496,13 +4493,11 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
     <label for="showData">显示数据</label>
   </div>
 
-  <div id="stepControl" class="control-panel" style="width: auto;">
-    <button id="stepBtn" class="circle-btn" title="切换速度">
-      <svg viewBox="0 0 24 24">
-        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-      </svg>
-    </button>
-  </div>
+  <button id="stepBtn" class="circle-btn" title="切换速度" style="position: absolute; top: 200px; right: 30px;">
+    <svg viewBox="0 0 24 24">
+      <path d="M13,6V18L21.5,12M4,18L12.5,12L4,6V18Z"/>
+    </svg>
+  </button>
 
   <!-- 坡度控制已注释
   <div id="slopeControl" class="control-panel">
@@ -4907,11 +4902,9 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
     };
 
     document.getElementById('stepBtn').onclick = () => {
+      // 明确切换两个固定值，避免浮点精度问题
       state.animationStep = state.animationStep === 0.02 ? 0.005 : 0.02;
-      // 如果正在播放，重新启动动画以应用新的步长
-      if (state.isPlaying) {
-        animate();
-      }
+      // 不需要重新启动动画，当前运行的动画循环会自动使用新的步长值
     };
 
     document.getElementById('frontGearSlider').oninput = (e) => {
