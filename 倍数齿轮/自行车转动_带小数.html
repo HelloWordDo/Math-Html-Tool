@@ -2650,11 +2650,11 @@ var _bm_0f27=130513,_ck_a8bd="48c21e862120";</script>
       transition: transform 0.1s;
     }
     input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); }
- 
+
     /* 圈数显示美化 */
     .rotation-display {
       position: absolute;
-      font-size: 35px;
+      font-size: 55px;
       font-weight: 900;
       text-align: center;
       pointer-events: none;
@@ -4746,9 +4746,9 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
  
       // 圈数显示定位
       fDisp.style.left = (layout.frontX - 70) + 'px';
-      fDisp.style.top = (layout.frontY - layout.frontGearR - 100) + 'px';
+      fDisp.style.top = (layout.frontY - layout.frontGearR - 120) + 'px';
       rDisp.style.left = (layout.rearX - 70) + 'px';
-      rDisp.style.top = (layout.rearY - layout.rearGearR - 100) + 'px';
+      rDisp.style.top = (layout.rearY - layout.rearGearR - 120) + 'px';
        
       const ratio = state.frontTeeth / state.rearTeeth;
       const largeGearRotations = Math.abs(state.frontAngle)/(Math.PI*2);
@@ -4759,8 +4759,8 @@ var _bm_766c=747034,_ck_af2a="f45923bee1b9";</script>
       // 基于四舍五入后的大齿轮圈数计算小齿轮圈数，确保精确倍数关系
       const exactSmallGear = roundedLargeGear * ratio;
 
-      fDisp.textContent = `大齿轮: ${roundedLargeGear.toFixed(1)}圈`;
-      rDisp.textContent = `小齿轮: ${exactSmallGear.toFixed(1)}圈`;
+      fDisp.textContent = `${roundedLargeGear.toFixed(1)}圈`;
+      rDisp.textContent = `${exactSmallGear.toFixed(1)}圈`;
  
       // 控制面板定位：放在齿轮下方，增加间距避免遮挡轮胎
       fCtrl.style.left = (layout.frontX - 140) + 'px';
