@@ -270,7 +270,7 @@
       isPlaying: false,
       showMarkers: false,
       showData: false,
-      animationStep: 0.02,
+      animationStep: 0.04,
       chainOffset: 0,
       isDragging: false,
       lastMouseAngle: 0
@@ -527,8 +527,8 @@
         // 基于四舍五入后的大齿轮圈数计算小齿轮圈数，确保精确倍数关系
         const exactSmallGear = roundedLargeGear * ratio;
 
-        fDisp.textContent = `${roundedLargeGear.toFixed(1)}圈`;
-        rDisp.textContent = `${exactSmallGear.toFixed(1)}圈`;
+        fDisp.textContent = `${roundedLargeGear.toFixed(1)}`;
+        rDisp.textContent = `${exactSmallGear.toFixed(1)}`;
       } else {
         fDisp.style.display = 'none';
         rDisp.style.display = 'none';
@@ -633,7 +633,7 @@
 
     document.getElementById('stepBtn').onclick = () => {
       // 明确切换两个固定值，避免浮点精度问题
-      state.animationStep = state.animationStep === 0.02 ? 0.005 : 0.02;
+      state.animationStep = state.animationStep === 0.04 ? 0.02 : 0.04;
       // 不需要重新启动动画，当前运行的动画循环会自动使用新的步长值
     };
 
