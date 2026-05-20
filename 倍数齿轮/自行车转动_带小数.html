@@ -270,7 +270,7 @@
       isPlaying: false,
       showMarkers: false,
       showData: false,
-      animationStep: 0.04,
+      animationStep: 0.025,
       chainOffset: 0,
       isDragging: false,
       lastMouseAngle: 0
@@ -633,7 +633,7 @@
 
     document.getElementById('stepBtn').onclick = () => {
       // 明确切换两个固定值，避免浮点精度问题
-      state.animationStep = state.animationStep === 0.04 ? 0.02 : 0.04;
+      state.animationStep = state.animationStep === 0.025 ? 0.008 : 0.025;
       // 不需要重新启动动画，当前运行的动画循环会自动使用新的步长值
     };
 
