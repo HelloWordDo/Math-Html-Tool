@@ -160,13 +160,38 @@
     }
     #showMarkers { width: 22px; height: 22px; cursor: pointer; }
     #showData { width: 22px; height: 22px; cursor: pointer; }
-    #stepBtn {
+    #stepBtn, #instructionBtn1, #instructionBtn2 {
       width: 60px;
       height: 60px;
     }
-    #stepBtn svg {
+    #stepBtn svg, #instructionBtn1 svg, #instructionBtn2 svg {
       width: 30px;
       height: 30px;
+    }
+
+    #instructionDisplay1, #instructionDisplay2 {
+      position: absolute;
+      left: 40%;
+      transform: translateX(-50%);
+      background: rgba(107, 114, 128, 0.9);
+      padding: 15px 20px;
+      border-radius: 8px;
+      max-width: 80%;
+      text-align: center;
+      line-height: 1.5;
+      display: none;
+      z-index: 100;
+      font-size: 32px;
+    }
+
+    #instructionDisplay1 {
+      bottom: 150px;
+      color: #f97316; /* 橙色 */
+    }
+
+    #instructionDisplay2 {
+      bottom: 60px;
+      color: #ef4444; /* 红色 */
     }
  
     .hint {
@@ -229,6 +254,18 @@
     </svg>
   </button>
 
+  <button id="instructionBtn1" class="circle-btn" title="显示记录方法" style="position: absolute; top: 270px; right: 30px;">
+    <svg viewBox="0 0 24 24">
+      <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+    </svg>
+  </button>
+
+  <button id="instructionBtn2" class="circle-btn" title="显示任务" style="position: absolute; top: 340px; right: 30px;">
+    <svg viewBox="0 0 24 24">
+      <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,17H13V15H11V17M12,14A2,2 0 0,1 14,12C14,11.62 13.82,11.28 13.5,11.08L13.1,10.88C12.8,10.68 12.6,10.4 12.6,10.1C12.6,9.7 12.9,9.4 13.3,9.4C13.5,9.4 13.7,9.5 13.9,9.7L15.3,8.3C14.8,7.8 14.1,7.5 13.3,7.5C12,7.5 11,8.5 11,9.8C11,10.2 11.2,10.6 11.5,10.9L11.9,11.1C12.2,11.4 12.4,11.7 12.4,12C12.4,12.6 11.9,13.1 11.3,13.1C10.9,13.1 10.5,12.9 10.3,12.6L8.9,14C9.4,14.6 10.1,15 10.9,15C11.5,15 12,14.5 12,14Z"/>
+    </svg>
+  </button>
+
   <!-- 坡度控制已注释
   <div id="slopeControl" class="control-panel">
     <div class="control-label" style="color: #f59e0b;">路况坡度: <span id="slopeVal">0°</span></div>
@@ -256,6 +293,8 @@
  
   <div id="frontRotDisp" class="rotation-display" style="color: var(--primary);">大齿轮: 0.0圈</div>
   <div id="rearRotDisp" class="rotation-display" style="color: var(--secondary);">小齿轮: 0.0圈</div>
+  <div id="instructionDisplay1">用粉卡片记录大齿轮转动的圈数，用蓝卡片记录相应的小齿轮转动的圈数。</div>
+  <div id="instructionDisplay2">任务一：该怎样记录大、小齿轮转动的圈数，才能表示出它们之间的秘密呢？</div>
  
   <script>
     const svg = document.getElementById('canvas');
@@ -271,6 +310,8 @@
       showMarkers: false,
       showData: false,
       animationStep: 0.025,
+      showInstruction1: false,
+      showInstruction2: false,
       chainOffset: 0,
       isDragging: false,
       lastMouseAngle: 0
@@ -539,6 +580,13 @@
       fCtrl.style.top = (layout.frontY + layout.frontGearR + 80) + 'px';
       rCtrl.style.left = (layout.rearX - 140) + 'px';
       rCtrl.style.top = (layout.rearY + layout.wheelR + 40) + 'px';
+
+      // 显示教学指导
+      const instructionDisplay1 = document.getElementById('instructionDisplay1');
+      const instructionDisplay2 = document.getElementById('instructionDisplay2');
+
+      instructionDisplay1.style.display = state.showInstruction1 ? 'block' : 'none';
+      instructionDisplay2.style.display = state.showInstruction2 ? 'block' : 'none';
     }
  
     function varColor(name) {
@@ -635,6 +683,16 @@
       // 明确切换两个固定值，避免浮点精度问题
       state.animationStep = state.animationStep === 0.025 ? 0.008 : 0.025;
       // 不需要重新启动动画，当前运行的动画循环会自动使用新的步长值
+    };
+
+    document.getElementById('instructionBtn1').onclick = () => {
+      state.showInstruction1 = !state.showInstruction1;
+      render();
+    };
+
+    document.getElementById('instructionBtn2').onclick = () => {
+      state.showInstruction2 = !state.showInstruction2;
+      render();
     };
 
     document.getElementById('frontGearSlider').oninput = (e) => {
