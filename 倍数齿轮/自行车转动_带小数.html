@@ -171,27 +171,31 @@
 
     #instructionDisplay1, #instructionDisplay2 {
       position: absolute;
-      left: 40%;
-      transform: translateX(-50%);
-      background: rgba(107, 114, 128, 0.9);
-      padding: 15px 20px;
+      left: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #000000;
+      padding: 10px 15px;
       border-radius: 8px;
-      max-width: 80%;
-      text-align: center;
-      line-height: 1.5;
+      width: 1850px;
+      text-align: left;
+      line-height: 1.6;
       display: none;
       z-index: 100;
-      font-size: 32px;
+      font-size: 40px;
+      font-weight: 500;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
     #instructionDisplay1 {
-      bottom: 150px;
-      color: #f97316; /* 橙色 */
+      bottom: 155px;
     }
 
     #instructionDisplay2 {
-      bottom: 60px;
-      color: #ef4444; /* 红色 */
+      bottom: 65px;
+    }
+
+    #instructionDisplay1 strong {
+      font-weight: 900;
     }
  
     .hint {
@@ -293,7 +297,7 @@
  
   <div id="frontRotDisp" class="rotation-display" style="color: var(--primary);">大齿轮: 0.0圈</div>
   <div id="rearRotDisp" class="rotation-display" style="color: var(--secondary);">小齿轮: 0.0圈</div>
-  <div id="instructionDisplay1">用粉卡片记录大齿轮转动的圈数，用蓝卡片记录相应的小齿轮转动的圈数。</div>
+  <div id="instructionDisplay1">用粉卡片记录大齿轮转动的圈数，用蓝卡片记录<strong>相应的</strong>小齿轮转动的圈数。</div>
   <div id="instructionDisplay2">任务一：该怎样记录大、小齿轮转动的圈数，才能表示出它们之间的秘密呢？</div>
  
   <script>
@@ -681,7 +685,7 @@
 
     document.getElementById('stepBtn').onclick = () => {
       // 明确切换两个固定值，避免浮点精度问题
-      state.animationStep = state.animationStep === 0.025 ? 0.008 : 0.025;
+      state.animationStep = state.animationStep === 0.025 ? 0.005 : 0.025;
       // 不需要重新启动动画，当前运行的动画循环会自动使用新的步长值
     };
 
