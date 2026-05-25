@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,8 +15,13 @@
       --frame: #1e293b;
       --tire: #0f172a;
     }
- 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
       background: #f1f5f9;
@@ -26,10 +32,18 @@
       -webkit-user-select: none;
       touch-action: none;
     }
- 
-    #canvas { width: 100%; height: 100%; display: block; cursor: default; }
-    #canvas.dragging { cursor: grabbing; }
- 
+
+    #canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: default;
+    }
+
+    #canvas.dragging {
+      cursor: grabbing;
+    }
+
     /* 增强版控制面板 */
     .control-panel {
       position: absolute;
@@ -44,10 +58,10 @@
       transition: all 0.3s ease;
       width: 280px;
     }
- 
+
     /* 调节面板定位由JS动态控制 */
     /* #slopeControl { top: 30px; left: 50%; transform: translateX(-50%); width: 360px; } */
- 
+
     .control-label {
       font-size: 18px;
       font-weight: 800;
@@ -56,13 +70,21 @@
       justify-content: space-between;
       align-items: center;
     }
- 
-    #frontControl .control-label { color: var(--primary); }
-    #rearControl .control-label { color: var(--secondary); }
+
+    #frontControl .control-label {
+      color: var(--primary);
+    }
+
+    #rearControl .control-label {
+      color: var(--secondary);
+    }
 
     /* 隐藏齿轮控制面板 */
-    #frontControl, #rearControl { display: none; }
- 
+    #frontControl,
+    #rearControl {
+      display: none;
+    }
+
     /* 滑块样式 */
     input[type="range"] {
       -webkit-appearance: none;
@@ -73,7 +95,7 @@
       outline: none;
       cursor: pointer;
     }
- 
+
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 28px;
@@ -81,11 +103,14 @@
       border-radius: 50%;
       background: white;
       border: 4px solid currentColor;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       cursor: pointer;
       transition: transform 0.1s;
     }
-    input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.2);
+    }
 
     /* 圈数显示美化 */
     .rotation-display {
@@ -97,12 +122,12 @@
       z-index: 50;
       padding: 6px 15px;
       border-radius: 10px;
-      background: rgba(255,255,255,0.9);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
       border: 2px solid currentColor;
       font-variant-numeric: tabular-nums;
     }
- 
+
     /* 按钮组放大并靠近自行车 */
     .button-group {
       position: absolute;
@@ -114,7 +139,7 @@
       gap: 30px;
       z-index: 100;
     }
- 
+
     .circle-btn {
       width: 90px;
       height: 90px;
@@ -125,17 +150,36 @@
       align-items: center;
       justify-content: center;
       background: white;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .circle-btn:hover { transform: scale(1.1); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
-    .circle-btn:active { transform: scale(0.9); }
-    .circle-btn.active { background: var(--accent); }
-    .circle-btn.active svg { fill: white; }
-    .circle-btn svg { width: 45px; height: 45px; transition: fill 0.3s; fill: var(--frame); }
- 
+
+    .circle-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .circle-btn:active {
+      transform: scale(0.9);
+    }
+
+    .circle-btn.active {
+      background: var(--accent);
+    }
+
+    .circle-btn.active svg {
+      fill: white;
+    }
+
+    .circle-btn svg {
+      width: 45px;
+      height: 45px;
+      transition: fill 0.3s;
+      fill: var(--frame);
+    }
+
     /* 记号开关 */
-    #markerToggle{
+    #markerToggle {
       position: absolute;
       top: 30px;
       right: 30px;
@@ -146,8 +190,9 @@
       font-weight: 800;
       color: var(--frame);
     }
+
     /* 显示数据 */
-    #dataToggle{
+    #dataToggle {
       position: absolute;
       top: 120px;
       right: 30px;
@@ -158,18 +203,35 @@
       font-weight: 800;
       color: var(--frame);
     }
-    #showMarkers { width: 22px; height: 22px; cursor: pointer; }
-    #showData { width: 22px; height: 22px; cursor: pointer; }
-    #stepBtn, #instructionBtn1, #instructionBtn2 {
+
+    #showMarkers {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+    }
+
+    #showData {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+    }
+
+    #stepBtn,
+    #instructionBtn1,
+    #instructionBtn2 {
       width: 60px;
       height: 60px;
     }
-    #stepBtn svg, #instructionBtn1 svg, #instructionBtn2 svg {
+
+    #stepBtn svg,
+    #instructionBtn1 svg,
+    #instructionBtn2 svg {
       width: 30px;
       height: 30px;
     }
 
-    #instructionDisplay1, #instructionDisplay2 {
+    #instructionDisplay1,
+    #instructionDisplay2 {
       position: absolute;
       left: 30px;
       background: rgba(255, 255, 255, 0.95);
@@ -197,22 +259,23 @@
     #instructionDisplay1 strong {
       font-weight: 900;
     }
- 
+
     .hint {
       position: absolute;
       bottom: 20px;
       left: 20px;
       color: var(--metal-dark);
       font-weight: 600;
-      background: rgba(255,255,255,0.6);
+      background: rgba(255, 255, 255, 0.6);
       padding: 8px 15px;
       border-radius: 8px;
       pointer-events: none;
       font-size: 14px;
     }
   </style>
- 
+
 </head>
+
 <body>
   <svg id="canvas">
     <defs>
@@ -254,19 +317,20 @@
 
   <button id="stepBtn" class="circle-btn" title="切换速度" style="position: absolute; top: 200px; right: 30px;">
     <svg viewBox="0 0 24 24">
-      <path d="M13,6V18L21.5,12M4,18L12.5,12L4,6V18Z"/>
+      <path d="M13,6V18L21.5,12M4,18L12.5,12L4,6V18Z" />
     </svg>
   </button>
 
   <button id="instructionBtn1" class="circle-btn" title="显示记录方法" style="position: absolute; top: 270px; right: 30px;">
     <svg viewBox="0 0 24 24">
-      <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+      <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
     </svg>
   </button>
 
   <button id="instructionBtn2" class="circle-btn" title="显示任务" style="position: absolute; top: 340px; right: 30px;">
     <svg viewBox="0 0 24 24">
-      <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,17H13V15H11V17M12,14A2,2 0 0,1 14,12C14,11.62 13.82,11.28 13.5,11.08L13.1,10.88C12.8,10.68 12.6,10.4 12.6,10.1C12.6,9.7 12.9,9.4 13.3,9.4C13.5,9.4 13.7,9.5 13.9,9.7L15.3,8.3C14.8,7.8 14.1,7.5 13.3,7.5C12,7.5 11,8.5 11,9.8C11,10.2 11.2,10.6 11.5,10.9L11.9,11.1C12.2,11.4 12.4,11.7 12.4,12C12.4,12.6 11.9,13.1 11.3,13.1C10.9,13.1 10.5,12.9 10.3,12.6L8.9,14C9.4,14.6 10.1,15 10.9,15C11.5,15 12,14.5 12,14Z"/>
+      <path
+        d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,17H13V15H11V17M12,14A2,2 0 0,1 14,12C14,11.62 13.82,11.28 13.5,11.08L13.1,10.88C12.8,10.68 12.6,10.4 12.6,10.1C12.6,9.7 12.9,9.4 13.3,9.4C13.5,9.4 13.7,9.5 13.9,9.7L15.3,8.3C14.8,7.8 14.1,7.5 13.3,7.5C12,7.5 11,8.5 11,9.8C11,10.2 11.2,10.6 11.5,10.9L11.9,11.1C12.2,11.4 12.4,11.7 12.4,12C12.4,12.6 11.9,13.1 11.3,13.1C10.9,13.1 10.5,12.9 10.3,12.6L8.9,14C9.4,14.6 10.1,15 10.9,15C11.5,15 12,14.5 12,14Z" />
     </svg>
   </button>
 
@@ -275,35 +339,40 @@
     <div class="control-label" style="color: #f59e0b;">路况坡度: <span id="slopeVal">0°</span></div>
     <input type="range" id="slopeSlider" min="-15" max="15" value="0" style="color: #f59e0b;">
   </div>-->
- 
+
   <div id="frontControl" class="control-panel">
     <div class="control-label"><span>前齿轮</span><span id="frontTeethTxt">48齿</span></div>
     <input type="range" id="frontGearSlider" min="20" max="60" value="48" style="color: var(--primary);">
   </div>
- 
+
   <div id="rearControl" class="control-panel">
     <div class="control-label"><span>后齿轮</span><span id="rearTeethTxt">16齿</span></div>
     <input type="range" id="rearGearSlider" min="10" max="30" value="16" style="color: var(--secondary);">
   </div>
- 
+
   <div class="button-group">
     <button id="playBtn" class="circle-btn" title="播放/暂停">
-      <svg viewBox="0 0 24 24"><path id="playIcon" d="M8 5v14l11-7z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path id="playIcon" d="M8 5v14l11-7z" />
+      </svg>
     </button>
     <button id="resetBtn" class="circle-btn" title="重置">
-      <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+      </svg>
     </button>
   </div>
- 
+
   <div id="frontRotDisp" class="rotation-display" style="color: var(--primary);">大齿轮: 0.0圈</div>
   <div id="rearRotDisp" class="rotation-display" style="color: var(--secondary);">小齿轮: 0.0圈</div>
   <div id="instructionDisplay1">用粉卡片记录大齿轮转动的圈数，用蓝卡片记录<strong>相应的</strong>小齿轮转动的圈数。</div>
   <div id="instructionDisplay2">任务一：该怎样记录大、小齿轮转动的圈数，才能表示出它们之间的秘密呢？</div>
- 
+
   <script>
     const svg = document.getElementById('canvas');
     const NS = 'http://www.w3.org/2000/svg';
-     
+
     let state = {
       frontTeeth: 48,
       rearTeeth: 16,
@@ -320,7 +389,7 @@
       isDragging: false,
       lastMouseAngle: 0
     };
- 
+
     const layout = {
       rearX: 0, rearY: 0,
       frontX: 0, frontY: 0,
@@ -330,14 +399,14 @@
       rearGearR: 0,
       crankL: 0
     };
- 
+
     function initLayout() {
       const w = window.innerWidth, h = window.innerHeight;
       svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
       const base = Math.min(w, h);
       layout.wheelR = base * 0.18;
       layout.crankL = base * 0.1;
-      const centerY = h * 0.55; 
+      const centerY = h * 0.55;
       const centerX = w * 0.5;
       const wheelBase = base * 0.8;
       layout.rearX = centerX + wheelBase * 0.05;
@@ -347,32 +416,32 @@
       layout.frontWheelX = centerX - wheelBase * 0.75;
       updateGearSizes();
     }
- 
+
     function updateGearSizes() {
       const base = Math.min(window.innerWidth, window.innerHeight) * 0.0018;
       layout.frontGearR = state.frontTeeth * base;
       layout.rearGearR = state.rearTeeth * base * 1.5;
     }
- 
+
     function createGear(cx, cy, r, teeth, color, angle, isFront) {
       const g = document.createElementNS(NS, 'g');
       g.setAttribute('transform', `rotate(${angle * 180 / Math.PI} ${cx} ${cy})`);
-       
+
       const rim = document.createElementNS(NS, 'circle');
       rim.setAttribute('cx', cx); rim.setAttribute('cy', cy); rim.setAttribute('r', r);
       rim.setAttribute('fill', 'url(#metalGrad)'); rim.setAttribute('stroke', '#1e293b'); rim.setAttribute('stroke-width', '2');
       g.appendChild(rim);
- 
+
       const innerR = r * 0.85;
       const hubR = r * 0.25;
-       
-      for(let i=0; i<5; i++) {
-        const a = (i/5) * Math.PI * 2;
+
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2;
         const spoke = document.createElementNS(NS, 'path');
-        const d = `M ${cx + Math.cos(a-0.1)*hubR} ${cy + Math.sin(a-0.1)*hubR} 
-                   L ${cx + Math.cos(a-0.05)*innerR} ${cy + Math.sin(a-0.05)*innerR}
-                   A ${innerR} ${innerR} 0 0 1 ${cx + Math.cos(a+0.05)*innerR} ${cy + Math.sin(a+0.05)*innerR}
-                   L ${cx + Math.cos(a+0.1)*hubR} ${cy + Math.sin(a+0.1)*hubR} Z`;
+        const d = `M ${cx + Math.cos(a - 0.1) * hubR} ${cy + Math.sin(a - 0.1) * hubR} 
+                   L ${cx + Math.cos(a - 0.05) * innerR} ${cy + Math.sin(a - 0.05) * innerR}
+                   A ${innerR} ${innerR} 0 0 1 ${cx + Math.cos(a + 0.05) * innerR} ${cy + Math.sin(a + 0.05) * innerR}
+                   L ${cx + Math.cos(a + 0.1) * hubR} ${cy + Math.sin(a + 0.1) * hubR} Z`;
         spoke.setAttribute('d', d);
         spoke.setAttribute('fill', color);
         spoke.setAttribute('fill-opacity', '0.8');
@@ -380,18 +449,18 @@
         spoke.setAttribute('stroke-width', '1');
         g.appendChild(spoke);
       }
- 
+
       const hub = document.createElementNS(NS, 'circle');
       hub.setAttribute('cx', cx); hub.setAttribute('cy', cy); hub.setAttribute('r', hubR);
       hub.setAttribute('fill', 'url(#metalGrad)'); hub.setAttribute('stroke', '#1e293b'); hub.setAttribute('stroke-width', '2');
       g.appendChild(hub);
- 
+
       // 齿形优化：前齿轮齿高略微缩短，更真实
-      const toothH = isFront ? r * 0.12 : r * 0.15; 
+      const toothH = isFront ? r * 0.12 : r * 0.15;
       const pitch = (Math.PI * 2) / teeth;
       const baseW = pitch * 0.35;
       const tipW = pitch * 0.05;
-       
+
       for (let i = 0; i < teeth; i++) {
         const a = (i / teeth) * Math.PI * 2;
         const tooth = document.createElementNS(NS, 'path');
@@ -431,7 +500,7 @@
       const triHeight = sideLen * Math.sin(Math.PI / 3);
       const seatTubeTop = { x: (layout.rearX + layout.frontX) / 2, y: bb.y - triHeight };
       const headTubeTop = { x: layout.frontX - sideLen / 2, y: bb.y - triHeight };
-      const headTubeExtension = { x: headTubeTop.x - 50, y: headTubeTop.y - 60 }; 
+      const headTubeExtension = { x: headTubeTop.x - 50, y: headTubeTop.y - 60 };
 
       const d = `
         M ${layout.rearX} ${layout.rearY} L ${bb.x} ${bb.y} L ${seatTubeTop.x} ${seatTubeTop.y} Z
@@ -449,7 +518,7 @@
       framePath.setAttribute('stroke-linejoin', 'round'); framePath.setAttribute('stroke-linecap', 'round');
       frame.appendChild(framePath);
       main.appendChild(frame);
- 
+
       // 轮组美化：真实轮胎
       const drawWheel = (x, y, ang) => {
         const g = document.createElementNS(NS, 'g');
@@ -464,34 +533,34 @@
         rim.setAttribute('fill', 'none'); rim.setAttribute('stroke', '#94a3b8'); rim.setAttribute('stroke-width', '4');
         g.appendChild(rim);
         // 辐条
-        for(let i=0; i<24; i++) {
-          const a = (i/24)*Math.PI*2 + ang;
+        for (let i = 0; i < 24; i++) {
+          const a = (i / 24) * Math.PI * 2 + ang;
           const s = document.createElementNS(NS, 'line');
           s.setAttribute('x1', x); s.setAttribute('y1', y);
-          s.setAttribute('x2', x + Math.cos(a)*(layout.wheelR-11)); s.setAttribute('y2', y + Math.sin(a)*(layout.wheelR-11));
+          s.setAttribute('x2', x + Math.cos(a) * (layout.wheelR - 11)); s.setAttribute('y2', y + Math.sin(a) * (layout.wheelR - 11));
           s.setAttribute('stroke', '#cbd5e1'); s.setAttribute('stroke-width', '1.5'); g.appendChild(s);
         }
         // 轮胎花纹 (简单模拟)
-        for(let i=0; i<36; i++) {
-          const a = (i/36)*Math.PI*2 + ang;
+        for (let i = 0; i < 36; i++) {
+          const a = (i / 36) * Math.PI * 2 + ang;
           const t = document.createElementNS(NS, 'line');
-          t.setAttribute('x1', x + Math.cos(a)*(layout.wheelR+8)); t.setAttribute('y1', y + Math.sin(a)*(layout.wheelR+8));
-          t.setAttribute('x2', x + Math.cos(a)*(layout.wheelR+11)); t.setAttribute('y2', y + Math.sin(a)*(layout.wheelR+11));
+          t.setAttribute('x1', x + Math.cos(a) * (layout.wheelR + 8)); t.setAttribute('y1', y + Math.sin(a) * (layout.wheelR + 8));
+          t.setAttribute('x2', x + Math.cos(a) * (layout.wheelR + 11)); t.setAttribute('y2', y + Math.sin(a) * (layout.wheelR + 11));
           t.setAttribute('stroke', '#1e293b'); t.setAttribute('stroke-width', '3'); g.appendChild(t);
         }
         return g;
       };
       main.appendChild(drawWheel(layout.rearX, layout.rearY, state.rearAngle));
       main.appendChild(drawWheel(layout.frontWheelX, layout.frontY, state.rearAngle));
- 
+
       // 齿轮
       main.appendChild(createGear(layout.rearX, layout.rearY, layout.rearGearR, state.rearTeeth, varColor('--secondary'), state.rearAngle, false));
       main.appendChild(createGear(layout.frontX, layout.frontY, layout.frontGearR, state.frontTeeth, varColor('--primary'), state.frontAngle, true));
- 
+
       // 链条
       const r1 = layout.frontGearR + 4, r2 = layout.rearGearR + 4;
       const dx = layout.rearX - layout.frontX, dy = layout.rearY - layout.frontY;
-      const dist = Math.sqrt(dx*dx + dy*dy);
+      const dist = Math.sqrt(dx * dx + dy * dy);
       const theta = Math.atan2(dy, dx);
       const phi = Math.acos((r1 - r2) / dist);
       const fx1 = layout.frontX + r1 * Math.cos(theta + phi), fy1 = layout.frontY + r1 * Math.sin(theta + phi);
@@ -507,18 +576,18 @@
       main.appendChild(chainBase);
       const chainBalls = document.createElementNS(NS, 'path');
       chainBalls.setAttribute('d', pathD);
-      chainBalls.setAttribute('fill', 'none'); 
-      chainBalls.setAttribute('stroke', '#94a3b8'); 
+      chainBalls.setAttribute('fill', 'none');
+      chainBalls.setAttribute('stroke', '#94a3b8');
       chainBalls.setAttribute('stroke-width', '8');
-      chainBalls.setAttribute('stroke-dasharray', '0.1, 12'); 
-      chainBalls.setAttribute('stroke-linecap', 'round'); 
+      chainBalls.setAttribute('stroke-dasharray', '0.1, 12');
+      chainBalls.setAttribute('stroke-linecap', 'round');
       chainBalls.setAttribute('stroke-dashoffset', state.chainOffset);
       chainBalls.setAttribute('filter', 'url(#ballShadow)');
       main.appendChild(chainBalls);
- 
+
       // 脚踏板
-      const ca = state.frontAngle - Math.PI/2;
-      const px = layout.frontX + Math.cos(ca)*layout.crankL, py = layout.frontY + Math.sin(ca)*layout.crankL;
+      const ca = state.frontAngle - Math.PI / 2;
+      const px = layout.frontX + Math.cos(ca) * layout.crankL, py = layout.frontY + Math.sin(ca) * layout.crankL;
       const crank = document.createElementNS(NS, 'line');
       crank.setAttribute('x1', layout.frontX); crank.setAttribute('y1', layout.frontY);
       crank.setAttribute('x2', px); crank.setAttribute('y2', py);
@@ -528,12 +597,12 @@
       pedal.setAttribute('x', px - 35); pedal.setAttribute('y', py - 12); pedal.setAttribute('width', 70); pedal.setAttribute('height', 24);
       pedal.setAttribute('rx', 8); pedal.setAttribute('fill', '#0f172a');
       main.appendChild(pedal);
- 
+
       // 记号点 (置顶)
       if (state.showMarkers) {
         const drawMarker = (cx, cy, r, ang, color) => {
-          const mx = cx + r * Math.cos(ang + Math.PI/2);
-          const my = cy + r * Math.sin(ang + Math.PI/2);
+          const mx = cx + r * Math.cos(ang + Math.PI / 2);
+          const my = cy + r * Math.sin(ang + Math.PI / 2);
           const marker = document.createElementNS(NS, 'circle');
           marker.setAttribute('cx', mx); marker.setAttribute('cy', my);
           marker.setAttribute('r', 10); marker.setAttribute('fill', color);
@@ -543,16 +612,16 @@
         drawMarker(layout.frontX, layout.frontY, layout.frontGearR, state.frontAngle, '#ff0000');
         drawMarker(layout.rearX, layout.rearY, layout.rearGearR, state.rearAngle, '#ff0000');
       }
- 
+
       updateFloatingUI();
     }
- 
+
     function updateFloatingUI() {
       const fDisp = document.getElementById('frontRotDisp');
       const rDisp = document.getElementById('rearRotDisp');
       const fCtrl = document.getElementById('frontControl');
       const rCtrl = document.getElementById('rearControl');
- 
+
       // 圈数显示定位和可见性
       if (state.showData) {
         fDisp.style.display = 'block';
@@ -564,8 +633,8 @@
         rDisp.style.top = (layout.rearY - layout.rearGearR - 120) + 'px';
 
         const ratio = state.frontTeeth / state.rearTeeth;
-        const largeGearRotations = Math.abs(state.frontAngle)/(Math.PI*2);
-        const smallGearRotations = state.rearAngle/(Math.PI*2);
+        const largeGearRotations = Math.abs(state.frontAngle) / (Math.PI * 2);
+        const smallGearRotations = state.rearAngle / (Math.PI * 2);
 
         // 先对大齿轮圈数四舍五入到1位小数
         const roundedLargeGear = Math.round(largeGearRotations * 10) / 10;
@@ -578,7 +647,7 @@
         fDisp.style.display = 'none';
         rDisp.style.display = 'none';
       }
- 
+
       // 控制面板定位：放在齿轮下方，增加间距避免遮挡轮胎
       fCtrl.style.left = (layout.frontX - 140) + 'px';
       fCtrl.style.top = (layout.frontY + layout.frontGearR + 80) + 'px';
@@ -592,36 +661,36 @@
       instructionDisplay1.style.display = state.showInstruction1 ? 'block' : 'none';
       instructionDisplay2.style.display = state.showInstruction2 ? 'block' : 'none';
     }
- 
+
     function varColor(name) {
       return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     }
- 
+
     function animate() {
       if (!state.isPlaying || state.isDragging) return;
       // const factor = 1 - (state.slope / 45);
       updateRotation(state.animationStep);
       requestAnimationFrame(animate);
     }
- 
+
     function updateRotation(delta) {
       state.frontAngle -= delta;
       state.rearAngle = state.frontAngle * (state.frontTeeth / state.rearTeeth);
       state.chainOffset -= delta * layout.frontGearR * 1.2;
       render();
     }
- 
+
     function getEventPos(e) {
       const rect = svg.getBoundingClientRect();
       const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
       const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
       return { x: clientX - rect.left, y: clientY - rect.top };
     }
- 
+
     function startDrag(e) {
       const pos = getEventPos(e);
-      const dist = Math.sqrt((pos.x - layout.frontX)**2 + (pos.y - layout.frontY)**2);
-       
+      const dist = Math.sqrt((pos.x - layout.frontX) ** 2 + (pos.y - layout.frontY) ** 2);
+
       // 严格限制在脚踏板/前齿轮区域
       if (dist < layout.frontGearR + 80) {
         if (e.type === 'touchstart') e.preventDefault();
@@ -630,7 +699,7 @@
         svg.classList.add('dragging');
       }
     }
- 
+
     function drag(e) {
       if (!state.isDragging) return;
       if (e.type === 'touchmove') e.preventDefault();
@@ -642,7 +711,7 @@
       updateRotation(-delta);
       state.lastMouseAngle = currentAngle;
     }
- 
+
     function endDrag() {
       if (state.isDragging) {
         state.isDragging = false;
@@ -650,21 +719,21 @@
         if (state.isPlaying) animate();
       }
     }
- 
+
     svg.addEventListener('mousedown', startDrag);
-    svg.addEventListener('touchstart', startDrag, {passive: false});
+    svg.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('mousemove', drag);
-    window.addEventListener('touchmove', drag, {passive: false});
+    window.addEventListener('touchmove', drag, { passive: false });
     window.addEventListener('mouseup', endDrag);
     window.addEventListener('touchend', endDrag);
- 
-    document.getElementById('playBtn').onclick = function() {
+
+    document.getElementById('playBtn').onclick = function () {
       state.isPlaying = !state.isPlaying;
       this.classList.toggle('active', state.isPlaying);
       document.getElementById('playIcon').setAttribute('d', state.isPlaying ? 'M6 4h4v16H6V4zm8 0h4v16h-4V4z' : 'M8 5v14l11-7z');
-      if(state.isPlaying) animate();
+      if (state.isPlaying) animate();
     };
- 
+
     document.getElementById('resetBtn').onclick = () => {
       state.frontAngle = 0; state.rearAngle = 0; state.chainOffset = 0;
       state.isPlaying = false;
@@ -672,12 +741,12 @@
       document.getElementById('playIcon').setAttribute('d', 'M8 5v14l11-7z');
       render();
     };
- 
+
     document.getElementById('showMarkers').onchange = (e) => {
       state.showMarkers = e.target.checked;
       render();
     };
- 
+
     document.getElementById('showData').onchange = (e) => {
       state.showData = e.target.checked;
       render();
@@ -704,23 +773,24 @@
       document.getElementById('frontTeethTxt').textContent = state.frontTeeth + '齿';
       updateGearSizes(); render();
     };
- 
+
     document.getElementById('rearGearSlider').oninput = (e) => {
       state.rearTeeth = parseInt(e.target.value);
       document.getElementById('rearTeethTxt').textContent = state.rearTeeth + '齿';
       updateGearSizes(); render();
     };
- 
+
     // 坡度控制已注释
     // document.getElementById('slopeSlider').oninput = (e) => {
     //   state.slope = parseInt(e.target.value);
     //   document.getElementById('slopeVal').textContent = state.slope + '°';
     //   render();
     // };
- 
+
     window.onresize = () => { initLayout(); render(); };
     initLayout(); render();
   </script>
 
- </body>
+</body>
+
 </html>
